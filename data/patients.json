@@ -1,0 +1,13 @@
+[
+    {
+        "age": 45,
+        "bloodGroup": "O+",
+        "bloodRequired": "O+",
+        "name": "rahul",
+        "patientId": 101,
+        "requiredResource": "ICU",
+        "riskLevel": 8,
+        "severity": 9,
+        "waitingTime": 0
+    }
+]

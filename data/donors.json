@@ -1,0 +1,42 @@
+[
+    {
+        "available": true,
+        "bloodGroup": "O+",
+        "distance": 5,
+        "donorId": "D101",
+        "lastDonationDate": "2026-06-01",
+        "name": "Ravi"
+    },
+    {
+        "available": true,
+        "bloodGroup": "O-",
+        "distance": 25,
+        "donorId": "D102",
+        "lastDonationDate": "2026-06-15",
+        "name": "Amit"
+    },
+    {
+        "available": true,
+        "bloodGroup": "A+",
+        "distance": 8,
+        "donorId": "D103",
+        "lastDonationDate": "2026-07-01",
+        "name": "Kunal"
+    },
+    {
+        "available": true,
+        "bloodGroup": "B+",
+        "distance": 3,
+        "donorId": "D104",
+        "lastDonationDate": "2026-05-01",
+        "name": "Arjun"
+    },
+    {
+        "available": false,
+        "bloodGroup": "O-",
+        "distance": 2,
+        "donorId": "D105",
+        "lastDonationDate": "2026-04-01",
+        "name": "Neeraj"
+    }
+]
