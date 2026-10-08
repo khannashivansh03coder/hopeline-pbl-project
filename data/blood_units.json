@@ -1,0 +1,32 @@
+[
+    {
+        "bloodGroup": "O+",
+        "expiryDate": "2026-12-01",
+        "status": "AVAILABLE",
+        "unitId": "B001"
+    },
+    {
+        "bloodGroup": "O-",
+        "expiryDate": "2026-11-15",
+        "status": "AVAILABLE",
+        "unitId": "B002"
+    },
+    {
+        "bloodGroup": "A+",
+        "expiryDate": "2026-11-20",
+        "status": "AVAILABLE",
+        "unitId": "B003"
+    },
+    {
+        "bloodGroup": "B+",
+        "expiryDate": "2026-12-10",
+        "status": "AVAILABLE",
+        "unitId": "B004"
+    },
+    {
+        "bloodGroup": "AB+",
+        "expiryDate": "2026-12-05",
+        "status": "AVAILABLE",
+        "unitId": "B005"
+    }
+]

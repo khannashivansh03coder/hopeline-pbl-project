@@ -12,6 +12,10 @@
 #include "../include/DonorHashTable.h"
 #include "../include/DonorMatching.h"
 
+#include "../include/BloodUnit.h"
+
+#include "../include/JsonManager.h"
+
 #include "../modules/parikshit/Hospital.h"
 #include "../modules/parikshit/Resource.h"
 
@@ -22,8 +26,9 @@ using namespace std;
 // FIND AVAILABLE RESOURCE
 // ============================================================
 
-Resource* findAvailableResource(Hospital& hospital,
-                                 const string& requiredResource)
+Resource* findAvailableResource(
+    Hospital& hospital,
+    const string& requiredResource)
 {
     vector<int> resourceIds;
 
@@ -69,8 +74,10 @@ Resource* findAvailableResource(Hospital& hospital,
 // REGISTER PATIENT
 // ============================================================
 
-void registerPatient(vector<Patient>& patients,
-                     PriorityQueue& emergencyQueue)
+void registerPatient(
+    vector<Patient>& patients,
+    PriorityQueue& emergencyQueue,
+    JsonManager& jsonManager)
 {
     int id;
     string name;
@@ -88,9 +95,8 @@ void registerPatient(vector<Patient>& patients,
     cout << "Enter Patient ID: ";
     cin >> id;
 
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
     cout << "Enter Patient Name: ";
+    cin >> ws;
     getline(cin, name);
 
     cout << "Enter Age: ";
@@ -105,14 +111,12 @@ void registerPatient(vector<Patient>& patients,
     cout << "Enter Risk Level (1-10): ";
     cin >> riskLevel;
 
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
     cout << "Enter Required Resource (ICU/GENERAL/OXYGEN): ";
-    getline(cin, requiredResource);
-
-    char choice;
+    cin >> requiredResource;
 
     cout << "Does patient require blood? (Y/N): ";
+
+    char choice;
     cin >> choice;
 
     if (choice == 'Y' || choice == 'y')
@@ -141,6 +145,9 @@ void registerPatient(vector<Patient>& patients,
 
     emergencyQueue.enqueue(newPatient);
 
+    // Save patient to JSON
+    jsonManager.savePatient(newPatient);
+
     cout << "\nPatient registered successfully!\n";
 
     newPatient.display();
@@ -159,8 +166,9 @@ void registerPatient(vector<Patient>& patients,
 // VIEW PATIENTS
 // ============================================================
 
-void viewPatients(const vector<Patient>& patients,
-                  PriorityEngine& priorityEngine)
+void viewPatients(
+    const vector<Patient>& patients,
+    PriorityEngine& priorityEngine)
 {
     if (patients.empty())
     {
@@ -191,124 +199,169 @@ void viewPatients(const vector<Patient>& patients,
 
 void setupHospital(Hospital& hospital)
 {
-    hospital.addResource(
-        make_unique<ICUBed>(1)
-    );
+    hospital.addResource(make_unique<ICUBed>(1));
+    hospital.addResource(make_unique<ICUBed>(2));
+    hospital.addResource(make_unique<ICUBed>(3));
+    hospital.addResource(make_unique<ICUBed>(4));
+    hospital.addResource(make_unique<ICUBed>(5));
 
-    hospital.addResource(
-        make_unique<ICUBed>(2)
-    );
+    hospital.addResource(make_unique<GeneralBed>(6));
+    hospital.addResource(make_unique<GeneralBed>(7));
+    hospital.addResource(make_unique<GeneralBed>(8));
+    hospital.addResource(make_unique<GeneralBed>(9));
+    hospital.addResource(make_unique<GeneralBed>(10));
 
-    hospital.addResource(
-        make_unique<ICUBed>(3)
-    );
-
-    hospital.addResource(
-        make_unique<ICUBed>(4)
-    );
-
-    hospital.addResource(
-        make_unique<ICUBed>(5)
-    );
-
-    hospital.addResource(
-        make_unique<GeneralBed>(6)
-    );
-
-    hospital.addResource(
-        make_unique<GeneralBed>(7)
-    );
-
-    hospital.addResource(
-        make_unique<GeneralBed>(8)
-    );
-
-    hospital.addResource(
-        make_unique<GeneralBed>(9)
-    );
-
-    hospital.addResource(
-        make_unique<GeneralBed>(10)
-    );
-
-    hospital.addResource(
-        make_unique<OxygenUnit>(11)
-    );
-
-    hospital.addResource(
-        make_unique<OxygenUnit>(12)
-    );
-
-    hospital.addResource(
-        make_unique<OxygenUnit>(13)
-    );
-
-    hospital.addResource(
-        make_unique<OxygenUnit>(14)
-    );
-
-    hospital.addResource(
-        make_unique<OxygenUnit>(15)
-    );
+    hospital.addResource(make_unique<OxygenUnit>(11));
+    hospital.addResource(make_unique<OxygenUnit>(12));
+    hospital.addResource(make_unique<OxygenUnit>(13));
+    hospital.addResource(make_unique<OxygenUnit>(14));
+    hospital.addResource(make_unique<OxygenUnit>(15));
 }
 
 
 // ============================================================
-// CREATE SAMPLE DONORS
+// CREATE / LOAD DONORS
 // ============================================================
 
-void setupDonors(DonorHashTable& donorTable)
+void setupDonors(
+    DonorHashTable& donorTable,
+    JsonManager& jsonManager)
 {
-    Donor donor1(
-        "D101",
-        "Ravi",
-        "O+",
-        true,
-        5,
-        "2026-06-01"
-    );
+    vector<Donor> donors;
 
-    Donor donor2(
-        "D102",
-        "Amit",
-        "O-",
-        true,
-        25,
-        "2026-06-15"
-    );
+    // Try to load donors from JSON
+    jsonManager.loadDonors(donors);
 
-    Donor donor3(
-        "D103",
-        "Kunal",
-        "A+",
-        true,
-        8,
-        "2026-07-01"
-    );
+    // If no donors are saved, create sample donors
+    if (donors.empty())
+    {
+        Donor donor1(
+            "D101",
+            "Ravi",
+            "O+",
+            true,
+            5,
+            "2026-06-01"
+        );
 
-    Donor donor4(
-        "D104",
-        "Arjun",
-        "B+",
-        true,
-        3,
-        "2026-05-01"
-    );
+        Donor donor2(
+            "D102",
+            "Amit",
+            "O-",
+            true,
+            25,
+            "2026-06-15"
+        );
 
-    Donor donor5(
-        "D105",
-        "Neeraj",
-        "O-",
-        false,
-        2,
-        "2026-04-01"
-    );
+        Donor donor3(
+            "D103",
+            "Kunal",
+            "A+",
+            true,
+            8,
+            "2026-07-01"
+        );
 
-    donorTable.insert(donor1);
-    donorTable.insert(donor2);
-    donorTable.insert(donor3);
-    donorTable.insert(donor4);
-    donorTable.insert(donor5);
+        Donor donor4(
+            "D104",
+            "Arjun",
+            "B+",
+            true,
+            3,
+            "2026-05-01"
+        );
+
+        Donor donor5(
+            "D105",
+            "Neeraj",
+            "O-",
+            false,
+            2,
+            "2026-04-01"
+        );
+
+        donors.push_back(donor1);
+        donors.push_back(donor2);
+        donors.push_back(donor3);
+        donors.push_back(donor4);
+        donors.push_back(donor5);
+
+        // Save sample donors to JSON
+        for (const Donor& donor : donors)
+        {
+            jsonManager.saveDonor(donor);
+        }
+    }
+
+    // Insert loaded donors into hash table
+    for (const Donor& donor : donors)
+    {
+        donorTable.insert(donor);
+    }
+}
+
+
+// ============================================================
+// CREATE / LOAD BLOOD UNITS
+// ============================================================
+
+void setupBloodUnits(
+    vector<BloodUnit>& bloodUnits,
+    JsonManager& jsonManager)
+{
+    // Try to load blood units from JSON
+    jsonManager.loadBloodUnits(bloodUnits);
+
+    // If no blood units are saved, create sample units
+    if (bloodUnits.empty())
+    {
+        BloodUnit unit1(
+            "B001",
+            "O+",
+            "2026-12-01",
+            "AVAILABLE"
+        );
+
+        BloodUnit unit2(
+            "B002",
+            "O-",
+            "2026-11-15",
+            "AVAILABLE"
+        );
+
+        BloodUnit unit3(
+            "B003",
+            "A+",
+            "2026-11-20",
+            "AVAILABLE"
+        );
+
+        BloodUnit unit4(
+            "B004",
+            "B+",
+            "2026-12-10",
+            "AVAILABLE"
+        );
+
+        BloodUnit unit5(
+            "B005",
+            "AB+",
+            "2026-12-05",
+            "AVAILABLE"
+        );
+
+        bloodUnits.push_back(unit1);
+        bloodUnits.push_back(unit2);
+        bloodUnits.push_back(unit3);
+        bloodUnits.push_back(unit4);
+        bloodUnits.push_back(unit5);
+
+        // Save blood units to JSON
+        for (const BloodUnit& unit : bloodUnits)
+        {
+            jsonManager.saveBloodUnit(unit);
+        }
+    }
 }
 
 
@@ -316,9 +369,10 @@ void setupDonors(DonorHashTable& donorTable)
 // FIND BEST DONOR FOR PATIENT
 // ============================================================
 
-void findBloodDonor(const Patient& patient,
-                    const DonorHashTable& donorTable,
-                    PriorityEngine& priorityEngine)
+void findBloodDonor(
+    const Patient& patient,
+    const DonorHashTable& donorTable,
+    PriorityEngine& priorityEngine)
 {
     string bloodGroup = patient.getBloodRequired();
 
@@ -381,7 +435,8 @@ void processHighestPriorityPatient(
     PriorityQueue& emergencyQueue,
     Hospital& hospital,
     const DonorHashTable& donorTable,
-    PriorityEngine& priorityEngine)
+    PriorityEngine& priorityEngine,
+    JsonManager& jsonManager)
 {
     if (emergencyQueue.isEmpty())
     {
@@ -431,6 +486,9 @@ void processHighestPriorityPatient(
         );
 
         cout << "Status             : Allocated\n";
+
+        // Save updated resource status
+        jsonManager.saveResources(hospital);
     }
     else
     {
@@ -472,6 +530,8 @@ int main()
 {
     vector<Patient> patients;
 
+    vector<BloodUnit> bloodUnits;
+
     PriorityEngine priorityEngine;
 
     PriorityQueue emergencyQueue;
@@ -480,9 +540,59 @@ int main()
 
     DonorHashTable donorTable(10);
 
+    JsonManager jsonManager;
+
+
+    // --------------------------------------------------------
+    // Create hospital resources
+    // --------------------------------------------------------
+
     setupHospital(hospital);
 
-    setupDonors(donorTable);
+
+    // --------------------------------------------------------
+    // Load saved resource status
+    // --------------------------------------------------------
+
+    jsonManager.loadResources(hospital);
+
+
+    // --------------------------------------------------------
+    // Load saved patients
+    // --------------------------------------------------------
+
+    jsonManager.loadPatients(patients);
+
+
+    // --------------------------------------------------------
+    // Add loaded patients to priority queue
+    // --------------------------------------------------------
+
+    for (const Patient& patient : patients)
+    {
+        emergencyQueue.enqueue(patient);
+    }
+
+
+    // --------------------------------------------------------
+    // Load / create donors
+    // --------------------------------------------------------
+
+    setupDonors(
+        donorTable,
+        jsonManager
+    );
+
+
+    // --------------------------------------------------------
+    // Load / create blood units
+    // --------------------------------------------------------
+
+    setupBloodUnits(
+        bloodUnits,
+        jsonManager
+    );
+
 
     int choice;
 
@@ -513,11 +623,13 @@ int main()
             {
                 registerPatient(
                     patients,
-                    emergencyQueue
+                    emergencyQueue,
+                    jsonManager
                 );
 
                 break;
             }
+
 
             case 2:
             {
@@ -529,6 +641,7 @@ int main()
                 break;
             }
 
+
             case 3:
             {
                 emergencyQueue.display();
@@ -536,17 +649,20 @@ int main()
                 break;
             }
 
+
             case 4:
             {
                 processHighestPriorityPatient(
                     emergencyQueue,
                     hospital,
                     donorTable,
-                    priorityEngine
+                    priorityEngine,
+                    jsonManager
                 );
 
                 break;
             }
+
 
             case 5:
             {
@@ -555,12 +671,14 @@ int main()
                 break;
             }
 
+
             case 6:
             {
                 donorTable.display();
 
                 break;
             }
+
 
             case 7:
             {
@@ -594,11 +712,17 @@ int main()
                 break;
             }
 
+
             case 8:
             {
+                // Save latest hospital resource state
+                jsonManager.saveResources(hospital);
+
                 cout << "\nExiting HopeLine...\n";
+
                 break;
             }
+
 
             default:
             {
@@ -607,6 +731,7 @@ int main()
         }
 
     } while (choice != 8);
+
 
     return 0;
 }
