@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <cstdio>
 
 using namespace std;
 
@@ -85,6 +86,96 @@ void JsonManager::loadPatients(vector<Patient>& patients)
 
     inFile.close();
 }
+
+
+bool JsonManager::deletePatient(int patientId)
+{
+    json data;
+    const string tempFile = patientFile + ".tmp";
+
+    // Read the existing patient records
+    ifstream inFile(patientFile);
+
+    if (!inFile.is_open())
+    {
+        cerr << "Error: Could not open patient JSON file.\n";
+        return false;
+    }
+
+    try
+    {
+        inFile >> data;
+    }
+    catch (const json::exception& e)
+    {
+        cerr << "Error: Patient JSON file is invalid: "
+             << e.what() << '\n';
+        return false;
+    }
+
+    inFile.close();
+
+    // Ensure the JSON contains an array
+    if (!data.is_array())
+    {
+        cerr << "Error: Patient data is not a JSON array.\n";
+        return false;
+    }
+
+    // Find the patient using the actual patient ID
+    auto it = data.begin();
+
+    while (it != data.end())
+    {
+        if (it->is_object() &&
+            it->contains("patientId") &&
+            (*it)["patientId"].is_number_integer() &&
+            (*it)["patientId"].get<int>() == patientId)
+        {
+            break;
+        }
+
+        ++it;
+    }
+
+    // Do not modify the file if the ID does not exist
+    if (it == data.end())
+    {
+        return false;
+    }
+
+    data.erase(it);
+
+    // Write the updated data to a temporary file first
+    {
+        ofstream outFile(tempFile);
+
+        if (!outFile.is_open())
+        {
+            cerr << "Error: Could not create temporary patient file.\n";
+            return false;
+        }
+
+        outFile << data.dump(4);
+        outFile.close();
+
+        if (!outFile)
+        {
+            cerr << "Error: Could not write updated patient data.\n";
+            return false;
+        }
+    }
+
+    // Replace the original file only after writing succeeds
+    if (rename(tempFile.c_str(), patientFile.c_str()) != 0)
+    {
+        cerr << "Error: Could not replace patient JSON file.\n";
+        return false;
+    }
+
+    return true;
+}
+
 
 // ---------------- DONOR ----------------
 

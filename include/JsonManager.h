@@ -28,6 +28,7 @@ public:
     // Patient
     void savePatient(const Patient& patient);
     void loadPatients(vector<Patient>& patients);
+    bool deletePatient(int patientId);
 
     // Donor
     void saveDonor(const Donor& donor);
