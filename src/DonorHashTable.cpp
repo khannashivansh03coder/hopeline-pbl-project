@@ -48,30 +48,22 @@ vector<Donor> DonorHashTable::searchByBloodGroup(string bloodGroup) const
 
 void DonorHashTable::display() const
 {
-    cout << "\n========== DONOR HASH TABLE ==========\n";
+    cout << "\n========== FULL DONOR DETAILS ==========\n";
 
     for (int i = 0; i < tableSize; i++)
     {
-        cout << "Bucket " << i << " : ";
-
-        if (table[i].empty())
+        for (const Donor& donor : table[i])
         {
-            cout << "Empty";
+            donor.display();
+            cout << "--------------------------------------\n";
         }
-        else
-        {
-            for (const Donor& donor : table[i])
-            {
-                cout << donor.getDonorId()
-                     << "(" << donor.getBloodGroup() << ") ";
-            }
-        }
-
-        cout << endl;
     }
 
     cout << "======================================\n";
 }
+
+
+
 
 int DonorHashTable::size() const
 {
