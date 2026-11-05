@@ -18,6 +18,7 @@ private:
 
 public:
     void enqueue(const Patient& patient);
+    void refresh();
     Patient dequeue();
     Patient peek() const;
 

@@ -4,8 +4,9 @@
 using namespace std;
 
 Patient::Patient(int id, string n, int a, string bg,
-                 int s, int r, int wait,
-                 string resource, string blood)
+                int s, int r, int wait,
+                string resource, string blood,
+                time_t regTime)
 {
     patientId = id;
     name = n;
@@ -15,6 +16,10 @@ Patient::Patient(int id, string n, int a, string bg,
     severity = s;
     riskLevel = r;
     waitingTime = wait;
+
+    registrationTime = (regTime == 0)
+                       ? time(nullptr)
+                       : regTime;
 
     requiredResource = resource;
     bloodRequired = blood;
@@ -52,7 +57,12 @@ int Patient::getRiskLevel() const
 
 int Patient::getWaitingTime() const
 {
-    return waitingTime;
+    return waitingTime +
+           (time(nullptr) - registrationTime) / 60;
+}
+time_t Patient::getRegistrationTime() const
+{
+    return registrationTime;
 }
 
 string Patient::getRequiredResource() const
@@ -82,7 +92,7 @@ void Patient::display() const
     cout << "Blood Group       : " << bloodGroup << endl;
     cout << "Severity          : " << severity << "/10" << endl;
     cout << "Risk Level        : " << riskLevel << "/10" << endl;
-    cout << "Waiting Time      : " << waitingTime << " minutes" << endl;
+    cout << "Waiting Time      : " << getWaitingTime() << " minutes" << endl;
     cout << "Required Resource : " << requiredResource << endl;
 
     if (bloodRequired == "NONE")
