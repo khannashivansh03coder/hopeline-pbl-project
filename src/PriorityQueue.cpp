@@ -79,6 +79,14 @@ void PriorityQueue::enqueue(const Patient& patient)
     heapifyUp(lastIndex);
 }
 
+void PriorityQueue::refresh()
+{
+    for (int i = heap.size() / 2 - 1; i >= 0; i--)
+    {
+        heapifyDown(i);
+    }
+}
+
 Patient PriorityQueue::dequeue()
 {
     if (heap.empty())

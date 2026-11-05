@@ -45,6 +45,8 @@ void JsonManager::savePatient(const Patient& patient)
     patientData["severity"] = patient.getSeverity();
     patientData["riskLevel"] = patient.getRiskLevel();
     patientData["waitingTime"] = patient.getWaitingTime();
+    patientData["registrationTime"] = patient.getRegistrationTime();
+    
     patientData["requiredResource"] = patient.getRequiredResource();
     patientData["bloodRequired"] = patient.getBloodRequired();
 
@@ -54,6 +56,7 @@ void JsonManager::savePatient(const Patient& patient)
     outFile << data.dump(4);
     outFile.close();
 }
+
 
 void JsonManager::loadPatients(vector<Patient>& patients)
 {
@@ -69,6 +72,18 @@ void JsonManager::loadPatients(vector<Patient>& patients)
 
     for (auto& item : data)
     {
+        time_t regTime = 0;
+
+        if (item.contains("registrationTime"))
+        {
+            regTime = item["registrationTime"].get<time_t>();
+        }
+        else
+        {
+            regTime = time(nullptr) -
+                      (item["waitingTime"].get<int>() * 60);
+        }
+
         Patient patient(
             item["patientId"],
             item["name"],
@@ -78,7 +93,8 @@ void JsonManager::loadPatients(vector<Patient>& patients)
             item["riskLevel"],
             item["waitingTime"],
             item["requiredResource"],
-            item["bloodRequired"]
+            item["bloodRequired"],
+            regTime
         );
 
         patients.push_back(patient);
@@ -86,6 +102,7 @@ void JsonManager::loadPatients(vector<Patient>& patients)
 
     inFile.close();
 }
+
 
 
 bool JsonManager::deletePatient(int patientId)
