@@ -24,6 +24,8 @@ public:
     bool isEmpty() const;
     int size() const;
 
+    bool removeByPatientId(int patientId);
+
     void display() const;
 };
 

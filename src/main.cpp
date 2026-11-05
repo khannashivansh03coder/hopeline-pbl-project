@@ -193,6 +193,73 @@ void viewPatients(
 }
 
 
+void deletePatientRecord(
+    vector<Patient>& patients,
+    PriorityQueue& emergencyQueue,
+    JsonManager& jsonManager)
+{
+    if (patients.empty())
+    {
+        cout << "\nNo patients registered yet.\n";
+        return;
+    }
+
+    int patientId;
+
+    cout << "\nEnter Patient ID to delete: ";
+
+    if (!(cin >> patientId))
+    {
+        cout << "\nInvalid input. Please enter a numeric Patient ID.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+
+    // Find the patient in the registered-patient list
+    auto it = patients.begin();
+
+    while (it != patients.end() &&
+           it->getPatientId() != patientId)
+    {
+        ++it;
+    }
+
+    if (it == patients.end())
+    {
+        cout << "\nPatient not found.\n";
+        return;
+    }
+
+    // Remove from JSON first; if it fails, leave memory unchanged
+    if (!jsonManager.deletePatient(patientId))
+    {
+        cout << "\nCould not delete patient from saved data. "
+             << "No in-memory changes were made.\n";
+        return;
+    }
+
+    // Remove from the priority queue
+    bool removedFromQueue =
+        emergencyQueue.removeByPatientId(patientId);
+
+    // Remove from the registered-patient list
+    patients.erase(it);
+
+    if (!removedFromQueue)
+    {
+        cout << "\nWarning: Patient was removed from registered "
+             << "records, but was not found in the priority queue.\n";
+        cout << "Please verify the queue before processing patients.\n";
+        return;
+    }
+
+    cout << "\nPatient with ID " << patientId
+         << " deleted successfully.\n";
+}
+
+
+
 // ============================================================
 // CREATE SAMPLE HOSPITAL RESOURCES
 // ============================================================
@@ -610,8 +677,8 @@ int main()
         cout << "5. View Hospital Resources\n";
         cout << "6. View Donor Database\n";
         cout << "7. Find Best Blood Donor\n";
-        cout << "8. Exit\n";
-
+        cout << "8. Delete Patient\n";
+        cout << "9. Exit\n";
         cout << "====================================\n";
         cout << "Enter your choice: ";
 
@@ -711,9 +778,18 @@ int main()
 
                 break;
             }
-
-
             case 8:
+            {
+                deletePatientRecord(
+                    patients,
+                    emergencyQueue,
+                    jsonManager
+                );
+                break;
+            }
+
+
+            case 9:
             {
                 // Save latest hospital resource state
                 jsonManager.saveResources(hospital);
@@ -730,7 +806,7 @@ int main()
             }
         }
 
-    } while (choice != 8);
+    } while (choice != 9);
 
 
     return 0;

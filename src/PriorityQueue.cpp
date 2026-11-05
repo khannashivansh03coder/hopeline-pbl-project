@@ -119,6 +119,62 @@ int PriorityQueue::size() const
     return heap.size();
 }
 
+
+bool PriorityQueue::removeByPatientId(int patientId)
+{
+    // Search for the patient by actual ID
+    int index = -1;
+
+    for (int i = 0; i < static_cast<int>(heap.size()); i++)
+    {
+        if (heap[i].getPatientId() == patientId)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    // Patient not found in the queue
+    if (index == -1)
+    {
+        return false;
+    }
+
+    // If it is the last element, simply remove it
+    if (index == static_cast<int>(heap.size()) - 1)
+    {
+        heap.pop_back();
+        return true;
+    }
+
+    // Replace the deleted element with the last element
+    heap[index] = heap.back();
+    heap.pop_back();
+
+    // Restore the max-heap property
+    if (index > 0)
+    {
+        int parent = (index - 1) / 2;
+
+        int currentPriority =
+            priorityEngine.calculatePriority(heap[index]);
+
+        int parentPriority =
+            priorityEngine.calculatePriority(heap[parent]);
+
+        if (currentPriority > parentPriority)
+        {
+            heapifyUp(index);
+            return true;
+        }
+    }
+
+    heapifyDown(index);
+
+    return true;
+}
+
+
 void PriorityQueue::display() const
 {
     if (heap.empty())
