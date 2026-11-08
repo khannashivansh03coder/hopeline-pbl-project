@@ -636,6 +636,54 @@ function processSinglePatient(patientId) {
   showModalResult(patient, priority, resourceOutcome, donorOutcome, bestDonorMatch);
 }
 
+// C++ CLI Option 4: Process Highest Priority Patient
+function processHighestPriorityPatient() {
+  if (appState.patients.length === 0) {
+    showToast("Priority Queue is empty! Admit a patient first.", "warning");
+    return;
+  }
+  const ranked = [...appState.patients].map(p => ({
+    patient: p,
+    priority: calculatePriorityScore(p).priority
+  })).sort((a, b) => b.priority - a.priority);
+
+  processSinglePatient(ranked[0].patient.patientId);
+}
+
+// C++ CLI Option 2: View All Registered Patients
+function openPatientsListModal() {
+  const modal = document.getElementById("patients-list-modal");
+  const tbody = document.getElementById("patients-modal-table-body");
+  if (!modal || !tbody) return;
+
+  if (appState.patients.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-500">No patients currently registered in HopeLine.</td></tr>`;
+  } else {
+    tbody.innerHTML = appState.patients.map(p => {
+      const calc = calculatePriorityScore(p);
+      return `
+        <tr class="border-b border-slate-800 text-xs">
+          <td class="py-2.5 px-3 font-mono font-bold text-sky-400">#${p.patientId}</td>
+          <td class="py-2.5 px-3 font-semibold text-white">${p.name}</td>
+          <td class="py-2.5 px-3 text-slate-300">${p.age}</td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold">${p.bloodGroup}</span></td>
+          <td class="py-2.5 px-3 text-sky-300">${p.requiredResource}</td>
+          <td class="py-2.5 px-3 text-slate-300">${p.severity}/10</td>
+          <td class="py-2.5 px-3 text-slate-300">${p.riskLevel}/10</td>
+          <td class="py-2.5 px-3 text-slate-300">${p.waitingTime}m</td>
+          <td class="py-2.5 px-3 font-bold text-amber-400">${calc.priority}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+  modal.classList.remove("hidden");
+}
+
+function closePatientsListModal() {
+  const modal = document.getElementById("patients-list-modal");
+  if (modal) modal.classList.add("hidden");
+}
+
 function incrementWaitTime(patientId) {
   const p = appState.patients.find(pt => pt.patientId === patientId);
   if (p) {
