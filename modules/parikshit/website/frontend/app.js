@@ -1,403 +1,282 @@
 /**
- * HopeLine Fullstack Frontend Engine
- * Communicates with FastAPI REST API & SQLite Database
+ * HopeLine - Hospital Emergency & Triage Frontend Engine
+ * PBL Phase 3 | Team CodePulse | parikshit07.tech
  */
 
-const API_BASE = window.location.origin;
+const INITIAL_HOSPITAL_DATA = {
+  resources: [
+    { id: 1, type: "ICU Bed", state: "AVAILABLE", patientId: null, floor: "Level 3 - Critical Care" },
+    { id: 2, type: "ICU Bed", state: "AVAILABLE", patientId: null, floor: "Level 3 - Critical Care" },
+    { id: 3, type: "ICU Bed", state: "AVAILABLE", patientId: null, floor: "Level 3 - Critical Care" },
+    { id: 4, type: "ICU Bed", state: "AVAILABLE", patientId: null, floor: "Level 3 - Critical Care" },
+    { id: 5, type: "ICU Bed", state: "AVAILABLE", patientId: null, floor: "Level 3 - Critical Care" },
+    { id: 6, type: "General Bed", state: "AVAILABLE", patientId: null, floor: "Level 2 - General Ward" },
+    { id: 7, type: "General Bed", state: "AVAILABLE", patientId: null, floor: "Level 2 - General Ward" },
+    { id: 8, type: "General Bed", state: "AVAILABLE", patientId: null, floor: "Level 2 - General Ward" },
+    { id: 9, type: "General Bed", state: "AVAILABLE", patientId: null, floor: "Level 2 - General Ward" },
+    { id: 10, type: "General Bed", state: "AVAILABLE", patientId: null, floor: "Level 2 - General Ward" },
+    { id: 11, type: "Oxygen Unit", state: "AVAILABLE", patientId: null, floor: "Level 1 - Respiratory" },
+    { id: 12, type: "Oxygen Unit", state: "AVAILABLE", patientId: null, floor: "Level 1 - Respiratory" },
+    { id: 13, type: "Oxygen Unit", state: "AVAILABLE", patientId: null, floor: "Level 1 - Respiratory" },
+    { id: 14, type: "Oxygen Unit", state: "AVAILABLE", patientId: null, floor: "Level 1 - Respiratory" },
+    { id: 15, type: "Oxygen Unit", state: "AVAILABLE", patientId: null, floor: "Level 1 - Respiratory" }
+  ],
+  donors: [
+    { donorId: "D101", name: "Ravi Kumar", bloodGroup: "O+", distance: 5, lastDonationDate: "2026-06-01", available: true },
+    { donorId: "D102", name: "Amit Joshi", bloodGroup: "O-", distance: 25, lastDonationDate: "2026-06-15", available: true },
+    { donorId: "D103", name: "Kunal Mehra", bloodGroup: "A+", distance: 8, lastDonationDate: "2026-07-01", available: true },
+    { donorId: "D104", name: "Arjun Rawat", bloodGroup: "B+", distance: 3, lastDonationDate: "2026-05-01", available: true },
+    { donorId: "D105", name: "Neeraj Negi", bloodGroup: "O-", distance: 2, lastDonationDate: "2026-04-01", available: false }
+  ],
+  bloodUnits: [
+    { unitId: "B001", bloodGroup: "O+", expiryDate: "2026-12-01", status: "AVAILABLE" },
+    { unitId: "B002", bloodGroup: "O-", expiryDate: "2026-11-15", status: "AVAILABLE" },
+    { unitId: "B003", bloodGroup: "A+", expiryDate: "2026-11-20", status: "AVAILABLE" },
+    { unitId: "B004", bloodGroup: "B+", expiryDate: "2026-12-10", status: "AVAILABLE" },
+    { unitId: "B005", bloodGroup: "AB+", expiryDate: "2026-12-05", status: "AVAILABLE" }
+  ],
+  patients: [
+    {
+      patientId: 101,
+      name: "Rahul Sharma",
+      age: 45,
+      bloodGroup: "O+",
+      bloodRequired: "O+",
+      severity: 9,
+      riskLevel: 8,
+      waitingTime: 15,
+      requiredResource: "ICU"
+    }
+  ]
+};
 
-let currentQueue = [];
-let allResources = [];
-let allDonors = [];
-let allBloodUnits = [];
+let hospitalState = {
+  resources: [],
+  donors: [],
+  bloodUnits: [],
+  patients: [],
+  triageLogs: []
+};
 
 // -------------------------------------------------------------
-// Core API Calls
+// Priority Engine (Exact C++ PriorityEngine.cpp formula)
 // -------------------------------------------------------------
-async function fetchStats() {
-  try {
-    const res = await fetch(`${API_BASE}/api/stats`);
-    if (res.ok) {
-      const stats = await res.json();
-      document.getElementById("stat-active-patients").innerText = stats.active_queue_patients;
-      document.getElementById("stat-icu-beds").innerText = stats.available_icu_beds;
-      document.getElementById("stat-oxygen-units").innerText = stats.available_oxygen_units;
-      document.getElementById("stat-ready-donors").innerText = stats.ready_blood_donors;
-    }
-  } catch (e) {
-    console.warn("Could not fetch stats:", e);
-  }
-}
+function calculatePriority(patient) {
+  const severity = parseInt(patient.severity) || 1;
+  const risk = parseInt(patient.riskLevel) || 1;
+  const wait = parseInt(patient.waitingTime) || 0;
 
-async function fetchQueue() {
-  try {
-    const res = await fetch(`${API_BASE}/api/queue`);
-    if (res.ok) {
-      currentQueue = await res.json();
-      renderEmergencyQueue(currentQueue);
-      renderHeapTree(currentQueue);
-    }
-  } catch (e) {
-    console.error("Failed to fetch queue:", e);
-  }
-}
+  const waitScore = Math.min(Math.floor(wait / 5), 10);
+  const priority = (severity * 5) + (risk * 3) + (waitScore * 2);
 
-async function fetchResources() {
-  try {
-    const res = await fetch(`${API_BASE}/api/resources`);
-    if (res.ok) {
-      allResources = await res.json();
-      renderHospitalResources(allResources);
-    }
-  } catch (e) {
-    console.error("Failed to fetch resources:", e);
-  }
-}
-
-async function fetchDonors() {
-  try {
-    const res = await fetch(`${API_BASE}/api/donors`);
-    if (res.ok) {
-      allDonors = await res.json();
-      renderBloodDonors(allDonors);
-      renderHashTableVisualizer(allDonors);
-    }
-  } catch (e) {
-    console.error("Failed to fetch donors:", e);
-  }
-}
-
-async function fetchBloodUnits() {
-  try {
-    const res = await fetch(`${API_BASE}/api/blood-units`);
-    if (res.ok) {
-      allBloodUnits = await res.json();
-      renderBloodInventory(allBloodUnits);
-    }
-  } catch (e) {
-    console.error("Failed to fetch blood units:", e);
-  }
-}
-
-async function refreshAll() {
-  await Promise.all([
-    fetchStats(),
-    fetchQueue(),
-    fetchResources(),
-    fetchDonors(),
-    fetchBloodUnits()
-  ]);
+  return {
+    priority,
+    severityPoints: severity * 5,
+    riskPoints: risk * 3,
+    waitPoints: waitScore * 2
+  };
 }
 
 // -------------------------------------------------------------
-// Interactive UI Operations (Connected to SQLite)
+// Donor Matching Engine (Exact C++ DonorMatching.cpp logic)
 // -------------------------------------------------------------
-async function handlePatientSubmit(event) {
-  event.preventDefault();
-
-  const name = document.getElementById("form-patient-name").value.trim();
-  const age = parseInt(document.getElementById("form-patient-age").value) || 45;
-  const blood_group = document.getElementById("form-patient-blood").value;
-  const severity = parseInt(document.getElementById("form-patient-severity").value) || 8;
-  const risk_level = parseInt(document.getElementById("form-patient-risk").value) || 7;
-  const waiting_time = parseInt(document.getElementById("form-patient-wait").value) || 0;
-  const required_resource = document.getElementById("form-patient-resource").value;
-
-  try {
-    const res = await fetch(`${API_BASE}/api/patients`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        age,
-        blood_group,
-        severity,
-        risk_level,
-        waiting_time,
-        required_resource
-      })
-    });
-
-    if (res.ok) {
-      const created = await res.json();
-      showToast(`Emergency patient ${created.name} inserted into SQLite database! Priority: ${created.priority_score}`, "success");
-      document.getElementById("patient-form").reset();
-      updateLiveScorePreview();
-      refreshAll();
-    } else {
-      const err = await res.json();
-      showToast(`Error: ${err.detail || 'Failed to admit patient'}`, "warning");
-    }
-  } catch (e) {
-    showToast("Network error admitting patient", "warning");
-  }
+function isBloodCompatible(donorGroup, patientGroup) {
+  if (donorGroup === "O-") return true;
+  if (donorGroup === "O+") return ["O+", "A+", "B+", "AB+"].includes(patientGroup);
+  if (donorGroup === "A-") return ["A-", "A+", "AB-", "AB+"].includes(patientGroup);
+  if (donorGroup === "A+") return ["A+", "AB+"].includes(patientGroup);
+  if (donorGroup === "B-") return ["B-", "B+", "AB-", "AB+"].includes(patientGroup);
+  if (donorGroup === "B+") return ["B+", "AB+"].includes(patientGroup);
+  if (donorGroup === "AB-") return ["AB-", "AB+"].includes(patientGroup);
+  if (donorGroup === "AB+") return patientGroup === "AB+";
+  return false;
 }
 
-async function processHighestPriorityPatient() {
-  try {
-    const res = await fetch(`${API_BASE}/api/triage/process-next`, {
-      method: "POST"
-    });
-
-    if (res.ok) {
-      const result = await res.json();
-      showModalResult(result.patient, result.priority_score, result.resource_allocation, result.blood_donor_match);
-      refreshAll();
-    } else {
-      const err = await res.json();
-      showToast(err.detail || "No patients to process", "warning");
-    }
-  } catch (e) {
-    showToast("Error processing triage", "warning");
+function calculateDonorScore(donor, patientBloodGroup, urgencyScore) {
+  if (!isBloodCompatible(donor.bloodGroup, patientBloodGroup)) {
+    return { score: 0, compatible: false, compScore: 0, availScore: 0, distScore: 0, urgScore: 0 };
   }
-}
 
-async function incrementWaitTime(patientId) {
-  try {
-    const res = await fetch(`${API_BASE}/api/patients/${patientId}/wait`, {
-      method: "POST"
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      showToast(`+5m Wait added to ${updated.name}. DB Priority updated to ${updated.priority_score}`, "info");
-      refreshAll();
-    }
-  } catch (e) {
-    console.error(e);
-  }
-}
+  const compScore = (donor.bloodGroup === patientBloodGroup) ? 50 : 40;
+  const availScore = donor.available ? 20 : 0;
+  let distScore = 20 - Math.floor(donor.distance / 5);
+  distScore = Math.max(0, Math.min(20, distScore));
 
-async function deletePatientRecord(patientId) {
-  try {
-    const res = await fetch(`${API_BASE}/api/patients/${patientId}`, {
-      method: "DELETE"
-    });
-    if (res.ok) {
-      showToast(`Patient #${patientId} deleted from database`, "warning");
-      refreshAll();
-    }
-  } catch (e) {
-    console.error(e);
-  }
-}
+  const urgScore = Math.floor(Math.max(0, Math.min(100, urgencyScore)) / 10);
+  const total = compScore + availScore + distScore + urgScore;
 
-async function setResourceState(resourceId, newState) {
-  try {
-    const res = await fetch(`${API_BASE}/api/resources/${resourceId}/state`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ state: newState })
-    });
-    if (res.ok) {
-      refreshAll();
-    }
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-async function toggleDonorAvailability(donorId) {
-  try {
-    const res = await fetch(`${API_BASE}/api/donors/${donorId}/toggle`, {
-      method: "POST"
-    });
-    if (res.ok) {
-      refreshAll();
-    }
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-async function runDonorMatch() {
-  const blood_group = document.getElementById("matcher-blood-group").value;
-  const urgency_score = parseInt(document.getElementById("matcher-urgency-score").value) || 50;
-
-  try {
-    const res = await fetch(`${API_BASE}/api/donors/match`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ blood_group, urgency_score })
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      renderMatcherResults(data.ranked_candidates);
-    }
-  } catch (e) {
-    console.error("Match error:", e);
-  }
-}
-
-async function syncToCppFiles() {
-  try {
-    const res = await fetch(`${API_BASE}/api/sync/cpp`, { method: "POST" });
-    if (res.ok) {
-      showToast("Successfully synchronized SQLite database with C++ data/*.json files!", "success");
-    }
-  } catch (e) {
-    showToast("Sync failed", "warning");
-  }
+  return {
+    score: total,
+    compatible: true,
+    compScore,
+    availScore,
+    distScore,
+    urgScore
+  };
 }
 
 // -------------------------------------------------------------
-// Relational Database Explorer
+// State Management
 // -------------------------------------------------------------
-function setQuery(sql) {
-  document.getElementById("sql-query-input").value = sql;
-  executeCurrentQuery();
-}
-
-function loadTableData(tableName) {
-  setQuery(`SELECT * FROM ${tableName} LIMIT 25;`);
-}
-
-async function executeCurrentQuery() {
-  const query = document.getElementById("sql-query-input").value.trim();
-  const banner = document.getElementById("query-meta-banner");
-  const table = document.getElementById("query-results-table");
-
-  banner.innerHTML = `<span class="text-sky-400"><i class="fas fa-spinner fa-spin mr-1"></i> Executing SQL query against hopeline.db...</span>`;
-
-  try {
-    const res = await fetch(`${API_BASE}/api/database/query`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query })
-    });
-
-    const result = await res.json();
-
-    if (res.ok) {
-      banner.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fas fa-check-circle mr-1"></i> Success:</span> Returned <strong class="text-white">${result.row_count}</strong> rows from SQLite database.`;
-
-      if (result.row_count === 0) {
-        table.innerHTML = `<tr><td class="p-4 text-center text-slate-500 italic">No rows returned by query.</td></tr>`;
-        return;
-      }
-
-      const columns = Object.keys(result.data[0]);
-      let html = `<thead><tr class="border-b border-slate-700 bg-slate-800/80 text-slate-300">`;
-      columns.forEach(col => {
-        html += `<th class="py-2 px-3 font-mono font-bold">${col}</th>`;
-      });
-      html += `</tr></thead><tbody>`;
-
-      result.data.forEach(row => {
-        html += `<tr class="border-b border-slate-800/60 hover:bg-slate-800/40">`;
-        columns.forEach(col => {
-          let val = row[col];
-          if (val === null) val = `<span class="text-slate-600">NULL</span>`;
-          html += `<td class="py-1.5 px-3 font-mono">${val}</td>`;
-        });
-        html += `</tr>`;
-      });
-      html += `</tbody>`;
-      table.innerHTML = html;
-
-    } else {
-      banner.innerHTML = `<span class="text-rose-400 font-bold"><i class="fas fa-exclamation-triangle mr-1"></i> SQL Error:</span> ${result.detail}`;
-      table.innerHTML = "";
+function loadState() {
+  const saved = localStorage.getItem("hopeline_clinical_state");
+  if (saved) {
+    try {
+      hospitalState = JSON.parse(saved);
+      hospitalState.resources = hospitalState.resources || INITIAL_HOSPITAL_DATA.resources;
+      hospitalState.donors = hospitalState.donors || INITIAL_HOSPITAL_DATA.donors;
+      hospitalState.bloodUnits = hospitalState.bloodUnits || INITIAL_HOSPITAL_DATA.bloodUnits;
+      hospitalState.patients = hospitalState.patients || INITIAL_HOSPITAL_DATA.patients;
+      hospitalState.triageLogs = hospitalState.triageLogs || [];
+      return;
+    } catch (e) {
+      console.warn("Using default dataset:", e);
     }
-  } catch (e) {
-    banner.innerHTML = `<span class="text-rose-400">Failed to communicate with database API.</span>`;
   }
+  resetState();
+}
+
+function resetState() {
+  hospitalState = JSON.parse(JSON.stringify(INITIAL_HOSPITAL_DATA));
+  hospitalState.triageLogs = [];
+  saveState();
+}
+
+function saveState() {
+  localStorage.setItem("hopeline_clinical_state", JSON.stringify(hospitalState));
+  renderAll();
 }
 
 // -------------------------------------------------------------
-// UI Rendering Functions
+// UI Rendering
 // -------------------------------------------------------------
-function renderEmergencyQueue(queue) {
+function renderHeaderStats() {
+  const activePatients = hospitalState.patients.length;
+  const availICU = hospitalState.resources.filter(r => r.type.includes("ICU") && r.state === "AVAILABLE").length;
+  const availO2 = hospitalState.resources.filter(r => r.type.includes("Oxygen") && r.state === "AVAILABLE").length;
+  const readyDonors = hospitalState.donors.filter(d => d.available).length;
+
+  document.getElementById("stat-active-patients").innerText = activePatients;
+  document.getElementById("stat-icu-beds").innerText = `${availICU} / 5`;
+  document.getElementById("stat-oxygen-units").innerText = `${availO2} / 5`;
+  document.getElementById("stat-ready-donors").innerText = `${readyDonors} / ${hospitalState.donors.length}`;
+}
+
+// Render Emergency Queue (Sorted Max-Heap order)
+function renderEmergencyQueue() {
   const container = document.getElementById("patient-queue-list");
   if (!container) return;
 
-  if (queue.length === 0) {
+  if (hospitalState.patients.length === 0) {
     container.innerHTML = `
       <div class="text-center py-12 text-slate-400">
-        <i class="fas fa-check-circle text-4xl text-emerald-500/50 mb-3 block"></i>
-        <p class="text-lg font-medium">No pending emergency patients.</p>
-        <p class="text-sm text-slate-500">Database queue is empty. Admit a patient to start triage.</p>
+        <i class="fas fa-clipboard-check text-4xl text-emerald-400 mb-3 block"></i>
+        <h5 class="text-sm font-bold text-slate-700">Emergency Queue Clear</h5>
+        <p class="text-xs text-slate-400">All emergency patients have been triaged and allocated beds.</p>
       </div>`;
+    renderHeapTree([]);
     return;
   }
 
-  container.innerHTML = queue.map((p, index) => {
-    let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
-    if (p.priority_score >= 70) badgeClass = "bg-rose-500/20 text-rose-300 border-rose-500/40 pulse-badge";
-    else if (p.priority_score >= 50) badgeClass = "bg-amber-500/20 text-amber-300 border-amber-500/40";
-    else if (p.priority_score >= 35) badgeClass = "bg-sky-500/20 text-sky-300 border-sky-500/40";
+  // Max-Heap ordering by priority score
+  const ranked = [...hospitalState.patients].map(p => {
+    const calc = calculatePriority(p);
+    return { ...p, ...calc };
+  }).sort((a, b) => b.priority - a.priority);
+
+  container.innerHTML = ranked.map((p, index) => {
+    let badgeClass = "triage-stable";
+    let priorityLabel = "ESI Level 4 - Less Urgent";
+    if (p.priority >= 70) {
+      badgeClass = "triage-critical";
+      priorityLabel = "ESI Level 1 - Immediate Resuscitation";
+    } else if (p.priority >= 50) {
+      badgeClass = "triage-high";
+      priorityLabel = "ESI Level 2 - Emergent";
+    } else if (p.priority >= 35) {
+      badgeClass = "triage-moderate";
+      priorityLabel = "ESI Level 3 - Urgent";
+    }
 
     return `
-      <div class="glass-panel p-4 glass-panel-hover border flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="medical-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 ${p.priority >= 70 ? 'border-l-rose-500' : 'border-l-sky-500'}">
         <div class="flex items-start gap-3">
-          <div class="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 font-bold text-sky-400">
-            <span class="text-xs uppercase text-slate-400">Heap</span>
-            <span class="text-base leading-tight">#${index + 1}</span>
+          <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex flex-col items-center justify-center font-bold text-slate-800">
+            <span class="text-[9px] uppercase font-bold text-slate-400">Rank</span>
+            <span class="text-sm leading-tight text-sky-600 font-mono">#${index + 1}</span>
           </div>
+
           <div>
             <div class="flex items-center gap-2 flex-wrap">
-              <h4 class="font-bold text-lg text-white">${p.name}</h4>
-              <span class="text-xs font-semibold px-2 py-0.5 rounded border ${badgeClass}">Score: ${p.priority_score}</span>
-              <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">ID: #${p.patient_id}</span>
-              <span class="text-xs px-2 py-0.5 rounded bg-rose-950/60 text-rose-300 border border-rose-800/50"><i class="fas fa-tint mr-1"></i>${p.blood_group}</span>
+              <h5 class="font-bold text-slate-900 text-sm">${p.name}</h5>
+              <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${badgeClass}">${p.priority} Pts</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-mono">ID #${p.patientId}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200"><i class="fas fa-tint mr-1 text-rose-500"></i>${p.bloodGroup}</span>
             </div>
-            <div class="text-xs text-slate-400 mt-1 flex flex-wrap gap-x-4 gap-y-1">
+            <div class="text-xs text-slate-500 mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
               <span><strong>Age:</strong> ${p.age}</span>
-              <span><strong>Resource:</strong> <span class="text-sky-300">${p.required_resource}</span></span>
+              <span><strong>Unit Required:</strong> <span class="text-sky-700 font-semibold">${p.requiredResource}</span></span>
               <span><strong>Severity:</strong> ${p.severity}/10</span>
-              <span><strong>Risk:</strong> ${p.risk_level}/10</span>
-              <span><strong>Wait Time:</strong> ${p.waiting_time}m</span>
+              <span><strong>Risk:</strong> ${p.riskLevel}/10</span>
+              <span><strong>Wait:</strong> ${p.waitingTime}m</span>
             </div>
           </div>
         </div>
 
-        <div class="flex items-center gap-2 self-end md:self-center flex-wrap">
-          <button onclick="incrementWaitTime(${p.patient_id})" title="Add +5m wait time to see dynamic priority shift in SQLite" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
-            <i class="fas fa-clock mr-1 text-amber-400"></i> +5m Wait
+        <div class="flex items-center gap-2 self-end md:self-center">
+          <button onclick="boostWaitTime(${p.patientId})" title="Add +5m wait time to see dynamic priority shift" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition">
+            <i class="fas fa-clock text-amber-500 mr-1"></i> +5m Wait
           </button>
-          <button onclick="deletePatientRecord(${p.patient_id})" class="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition" title="Delete from SQLite">
+          <button onclick="triageSinglePatient(${p.patientId})" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition flex items-center gap-1.5">
+            <i class="fas fa-bolt text-amber-300"></i> Allocate Bed
+          </button>
+          <button onclick="removePatient(${p.patientId})" class="px-2 py-1.5 text-xs text-slate-400 hover:text-rose-600 rounded-lg transition" title="Delete patient">
             <i class="fas fa-trash"></i>
           </button>
         </div>
       </div>
     `;
   }).join("");
+
+  renderHeapTree(ranked);
 }
 
-function renderHeapTree(rankedPatients) {
+// Binary Heap Tree Visualizer
+function renderHeapTree(ranked) {
   const container = document.getElementById("heap-tree-visualizer");
   if (!container) return;
 
-  if (rankedPatients.length === 0) {
-    container.innerHTML = `<p class="text-center text-slate-500 text-sm py-8">Heap is currently empty. Admit patients to view Max-Heap layout.</p>`;
+  if (ranked.length === 0) {
+    container.innerHTML = `<p class="text-center text-slate-400 text-xs py-6">Heap is empty. Admit a patient to generate binary tree.</p>`;
     return;
   }
 
-  const maxNodes = Math.min(rankedPatients.length, 7);
-  let html = `<div class="flex flex-col items-center gap-6 py-4">`;
+  const maxNodes = Math.min(ranked.length, 7);
+  let html = `<div class="flex flex-col items-center gap-4 py-2 w-full">`;
 
   // Level 0 (Root)
   html += `<div class="flex justify-center">
     <div class="flex flex-col items-center">
-      <div class="tree-node bg-rose-600 text-white border-2 border-rose-300 shadow-rose-500/30">
-        <span class="text-xs font-mono">ROOT</span>
-        <span class="text-sm font-black">${rankedPatients[0].priority_score}</span>
+      <div class="heap-node bg-rose-600 text-white shadow-md border-2 border-rose-300">
+        <span class="text-[9px] font-mono">ROOT</span>
+        <span class="text-sm font-black font-mono">${ranked[0].priority}</span>
       </div>
-      <span class="text-[11px] text-rose-300 font-medium mt-1">${rankedPatients[0].name.split(" ")[0]}</span>
-      <span class="text-[10px] text-slate-400 font-mono">[Idx 0]</span>
+      <span class="text-[11px] font-bold text-rose-700 mt-1">${ranked[0].name.split(" ")[0]}</span>
+      <span class="text-[9px] font-mono text-slate-400">[0]</span>
     </div>
   </div>`;
 
   // Level 1 (Indices 1, 2)
   if (maxNodes > 1) {
-    html += `<div class="flex justify-center gap-16 md:gap-32 w-full">`;
+    html += `<div class="flex justify-center gap-16 md:gap-28 w-full">`;
     for (let i = 1; i <= 2 && i < maxNodes; i++) {
       html += `<div class="flex flex-col items-center">
-        <div class="tree-node bg-sky-600 text-white border border-sky-300 shadow-sky-500/30">
-          <span class="text-xs font-mono">P${i}</span>
-          <span class="text-sm font-black">${rankedPatients[i].priority_score}</span>
+        <div class="heap-node bg-sky-600 text-white shadow-sm border border-sky-300">
+          <span class="text-[9px] font-mono">P${i}</span>
+          <span class="text-sm font-black font-mono">${ranked[i].priority}</span>
         </div>
-        <span class="text-[11px] text-sky-200 font-medium mt-1">${rankedPatients[i].name.split(" ")[0]}</span>
-        <span class="text-[10px] text-slate-400 font-mono">[Idx ${i}]</span>
+        <span class="text-[11px] font-bold text-sky-800 mt-1">${ranked[i].name.split(" ")[0]}</span>
+        <span class="text-[9px] font-mono text-slate-400">[${i}]</span>
       </div>`;
     }
     html += `</div>`;
@@ -408,12 +287,12 @@ function renderHeapTree(rankedPatients) {
     html += `<div class="flex justify-center gap-6 md:gap-12 w-full">`;
     for (let i = 3; i < maxNodes; i++) {
       html += `<div class="flex flex-col items-center">
-        <div class="tree-node bg-slate-700 text-slate-200 border border-slate-500 shadow-slate-900/30">
-          <span class="text-xs font-mono">P${i}</span>
-          <span class="text-sm font-black">${rankedPatients[i].priority_score}</span>
+        <div class="heap-node bg-slate-600 text-white shadow-sm border border-slate-400">
+          <span class="text-[9px] font-mono">P${i}</span>
+          <span class="text-sm font-black font-mono">${ranked[i].priority}</span>
         </div>
-        <span class="text-[11px] text-slate-300 font-medium mt-1">${rankedPatients[i].name.split(" ")[0]}</span>
-        <span class="text-[10px] text-slate-400 font-mono">[Idx ${i}]</span>
+        <span class="text-[11px] font-semibold text-slate-700 mt-1">${ranked[i].name.split(" ")[0]}</span>
+        <span class="text-[9px] font-mono text-slate-400">[${i}]</span>
       </div>`;
     }
     html += `</div>`;
@@ -423,60 +302,62 @@ function renderHeapTree(rankedPatients) {
   container.innerHTML = html;
 }
 
-function renderHospitalResources(resources) {
+// Render Hospital Resources (Parikshit's Module)
+function renderHospitalResources() {
   const container = document.getElementById("hospital-resources-grid");
   if (!container) return;
 
-  container.innerHTML = resources.map(res => {
-    let icon = "fa-bed";
-    let typeColor = "text-sky-400";
+  container.innerHTML = hospitalState.resources.map(res => {
+    let icon = "fa-procedures";
+    let iconColor = "text-sky-600";
     if (res.type.includes("ICU")) {
       icon = "fa-heartbeat";
-      typeColor = "text-rose-400";
+      iconColor = "text-rose-600";
     } else if (res.type.includes("Oxygen")) {
       icon = "fa-lungs";
-      typeColor = "text-teal-400";
+      iconColor = "text-teal-600";
     }
 
     let statusBadge = "";
-    let cardBorder = "border-slate-800";
+    let bedClass = "available";
     if (res.state === "AVAILABLE") {
-      statusBadge = `<span class="px-2 py-0.5 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">AVAILABLE</span>`;
-      cardBorder = "border-emerald-500/30";
+      statusBadge = `<span class="px-2 py-0.5 text-[10px] rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">AVAILABLE</span>`;
+      bedClass = "available";
     } else if (res.state === "OCCUPIED") {
-      statusBadge = `<span class="px-2 py-0.5 text-xs rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 font-semibold">OCCUPIED</span>`;
-      cardBorder = "border-rose-500/40";
+      statusBadge = `<span class="px-2 py-0.5 text-[10px] rounded-full bg-rose-100 text-rose-800 font-bold border border-rose-200">OCCUPIED</span>`;
+      bedClass = "occupied";
     } else {
-      statusBadge = `<span class="px-2 py-0.5 text-xs rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30 font-semibold">RESERVED</span>`;
-      cardBorder = "border-sky-500/40";
+      statusBadge = `<span class="px-2 py-0.5 text-[10px] rounded-full bg-amber-100 text-amber-800 font-bold border border-amber-200">RESERVED</span>`;
+      bedClass = "reserved";
     }
 
     return `
-      <div class="glass-panel p-4 rounded-xl border ${cardBorder} flex flex-col justify-between">
+      <div class="medical-card bed-card ${bedClass} p-4 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
-              <i class="fas ${icon} ${typeColor} text-lg"></i>
-              <span class="font-bold text-white text-base">${res.type} #${res.id}</span>
+              <i class="fas ${icon} ${iconColor} text-base"></i>
+              <span class="font-bold text-slate-900 text-xs">${res.type} #${res.id}</span>
             </div>
             ${statusBadge}
           </div>
-          <div class="text-xs text-slate-400 mt-2">
-            ${res.assigned_patient_id ? `<span class="text-sky-300 font-medium"><i class="fas fa-user-injured mr-1"></i> Patient #${res.assigned_patient_id} Assigned</span>` : `<span class="text-slate-500">Ready for emergency triage</span>`}
+          <p class="text-[11px] text-slate-500">${res.floor}</p>
+          <div class="mt-2 text-xs">
+            ${res.patientId ? `<span class="font-semibold text-rose-700"><i class="fas fa-user-injured mr-1"></i> Patient #${res.patientId}</span>` : `<span class="text-slate-400 italic">Ready for admission</span>`}
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5 mt-4 pt-3 border-t border-slate-800/80">
+        <div class="flex items-center gap-1.5 mt-4 pt-3 border-t border-slate-200/60">
           ${res.state !== "OCCUPIED" ? `
-            <button onclick="setResourceState(${res.id}, 'OCCUPIED')" class="flex-1 py-1 text-[11px] font-semibold rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 transition">
+            <button onclick="setBedState(${res.id}, 'OCCUPIED')" class="flex-1 py-1 text-[11px] font-semibold rounded bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition">
               Occupy
             </button>
           ` : `
-            <button onclick="setResourceState(${res.id}, 'AVAILABLE')" class="flex-1 py-1 text-[11px] font-semibold rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 transition">
-              Release
+            <button onclick="setBedState(${res.id}, 'AVAILABLE')" class="flex-1 py-1 text-[11px] font-semibold rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition">
+              Discharge
             </button>
           `}
-          <button onclick="setResourceState(${res.id}, 'RESERVED')" class="px-2.5 py-1 text-[11px] font-semibold rounded bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 transition" title="Reserve for incoming emergency">
+          <button onclick="setBedState(${res.id}, 'RESERVED')" class="px-2 py-1 text-[11px] font-semibold rounded bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition" title="Reserve unit">
             Reserve
           </button>
         </div>
@@ -485,100 +366,57 @@ function renderHospitalResources(resources) {
   }).join("");
 }
 
-function renderBloodDonors(donors) {
+// Render Blood Donors Table (Piyush's Module)
+function renderBloodDonors() {
   const container = document.getElementById("donors-table-body");
   if (!container) return;
 
-  container.innerHTML = donors.map(d => {
-    return `
-      <tr class="border-b border-slate-800 hover:bg-slate-800/40 text-sm">
-        <td class="py-3 px-4 font-mono font-medium text-sky-400">${d.donor_id}</td>
-        <td class="py-3 px-4 font-semibold text-white">${d.name}</td>
-        <td class="py-3 px-4">
-          <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-rose-950/70 text-rose-300 border border-rose-800">
-            ${d.blood_group}
-          </span>
-        </td>
-        <td class="py-3 px-4 text-slate-300">${d.distance} km</td>
-        <td class="py-3 px-4 text-slate-400 text-xs">${d.last_donation_date}</td>
-        <td class="py-3 px-4">
-          ${d.available ?
-            `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Available</span>` :
-            `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/20 text-rose-400 border border-rose-500/30">Unavailable</span>`}
-        </td>
-        <td class="py-3 px-4 text-right">
-          <button onclick="toggleDonorAvailability('${d.donor_id}')" class="text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
-            Toggle
-          </button>
-        </td>
-      </tr>
-    `;
-  }).join("");
+  container.innerHTML = hospitalState.donors.map(d => `
+    <tr class="border-b border-slate-100 hover:bg-slate-50 text-slate-700">
+      <td class="py-2.5 px-4 font-mono font-bold text-sky-700">${d.donorId}</td>
+      <td class="py-2.5 px-4 font-semibold text-slate-900">${d.name}</td>
+      <td class="py-2.5 px-4">
+        <span class="px-2 py-0.5 rounded font-bold bg-rose-50 text-rose-700 border border-rose-200">${d.bloodGroup}</span>
+      </td>
+      <td class="py-2.5 px-4 font-medium">${d.distance} km</td>
+      <td class="py-2.5 px-4 text-slate-400">${d.lastDonationDate}</td>
+      <td class="py-2.5 px-4">
+        ${d.available ?
+          `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">ELIGIBLE</span>` :
+          `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">UNAVAILABLE</span>`}
+      </td>
+      <td class="py-2.5 px-4 text-right">
+        <button onclick="toggleDonor(${d.donorId})" class="text-xs px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition">
+          Toggle
+        </button>
+      </td>
+    </tr>
+  `).join("");
+
+  renderBloodInventory();
 }
 
-function renderBloodInventory(units) {
+function renderBloodInventory() {
   const container = document.getElementById("blood-inventory-grid");
   if (!container) return;
 
-  container.innerHTML = units.map(unit => {
-    return `
-      <div class="glass-panel p-3 border border-slate-800 rounded-lg flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-lg bg-rose-950/80 border border-rose-800 flex items-center justify-center font-bold text-rose-300 text-sm">
-            ${unit.blood_group}
-          </div>
-          <div>
-            <h5 class="text-sm font-bold text-white">${unit.unit_id}</h5>
-            <span class="text-[11px] text-slate-400">Exp: ${unit.expiry_date}</span>
-          </div>
+  container.innerHTML = hospitalState.bloodUnits.map(b => `
+    <div class="medical-card p-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-lg bg-rose-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+          ${b.bloodGroup}
         </div>
-        <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">${unit.status}</span>
-      </div>
-    `;
-  }).join("");
-}
-
-function renderMatcherResults(candidates) {
-  const resultsContainer = document.getElementById("matcher-results");
-  if (!resultsContainer) return;
-
-  if (!candidates || candidates.length === 0) {
-    resultsContainer.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">No compatible donors found in database.</div>`;
-    return;
-  }
-
-  resultsContainer.innerHTML = candidates.map((m, idx) => {
-    const isTop = idx === 0 && m.score > 0;
-    return `
-      <div class="glass-panel p-3 rounded-lg border ${isTop ? 'border-amber-400/80 bg-amber-500/10' : 'border-slate-800'} flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full ${isTop ? 'bg-amber-400 text-slate-900' : 'bg-slate-800 text-slate-300'} flex items-center justify-center font-bold text-xs">
-            #${idx + 1}
-          </div>
-          <div>
-            <h5 class="text-sm font-bold text-white flex items-center gap-2">
-              ${m.donor.name}
-              <span class="text-xs px-2 py-0.2 rounded bg-rose-950 text-rose-300 border border-rose-800">${m.donor.blood_group}</span>
-              ${isTop ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/40 font-bold uppercase">Best Match</span>' : ''}
-            </h5>
-            <div class="text-[11px] text-slate-400 flex gap-3 mt-0.5">
-              <span>Dist: ${m.donor.distance} km (+${m.distance_score} pts)</span>
-              <span>Compat: +${m.compatibility_score} pts</span>
-              <span>Avail: +${m.availability_score} pts</span>
-              <span>Urg: +${m.urgency_score} pts</span>
-            </div>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="text-base font-extrabold ${isTop ? 'text-amber-300' : 'text-slate-300'}">${m.score}</span>
-          <span class="text-[10px] text-slate-500 block uppercase font-mono">Score</span>
+        <div>
+          <span class="text-xs font-bold text-slate-900 block">${b.unitId}</span>
+          <span class="text-[10px] text-slate-400">Exp: ${b.expiryDate}</span>
         </div>
       </div>
-    `;
-  }).join("");
+      <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">${b.status}</span>
+    </div>
+  `).join("");
 }
 
-function renderHashTableVisualizer(donors) {
+function renderHashTableVisualizer() {
   const container = document.getElementById("hash-table-buckets");
   if (!container) return;
 
@@ -586,29 +424,29 @@ function renderHashTableVisualizer(donors) {
   const buckets = {};
   bloodGroups.forEach(bg => buckets[bg] = []);
 
-  donors.forEach(donor => {
-    if (buckets[donor.blood_group]) {
-      buckets[donor.blood_group].push(donor);
+  hospitalState.donors.forEach(donor => {
+    if (buckets[donor.bloodGroup]) {
+      buckets[donor.bloodGroup].push(donor);
     }
   });
 
   container.innerHTML = bloodGroups.map((bg, idx) => {
     const list = buckets[bg];
     return `
-      <div class="flex items-start gap-3 border-b border-slate-800/80 pb-3">
+      <div class="flex items-start gap-3 border-b border-slate-200/60 pb-2.5">
         <div class="w-20 flex-shrink-0 flex items-center gap-2">
-          <span class="w-6 h-6 rounded bg-slate-800 text-slate-400 text-xs flex items-center justify-center font-mono font-bold">[${idx}]</span>
-          <span class="font-bold text-rose-300 text-sm">${bg}</span>
+          <span class="w-6 h-6 rounded bg-slate-200 text-slate-700 text-xs flex items-center justify-center font-mono font-bold">[${idx}]</span>
+          <span class="font-bold text-rose-700 text-sm">${bg}</span>
         </div>
         <div class="flex-1 flex flex-wrap items-center gap-2">
           ${list.length > 0 ? list.map(d => `
-            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800 border border-slate-700 text-xs">
-              <span class="font-semibold text-white">${d.name}</span>
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white border border-slate-200 shadow-sm text-xs">
+              <span class="font-semibold text-slate-900">${d.name}</span>
               <span class="text-slate-400">(${d.distance}km)</span>
-              <span class="w-2 h-2 rounded-full ${d.available ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
+              <span class="w-2 h-2 rounded-full ${d.available ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
             </div>
-            <i class="fas fa-arrow-right text-[10px] text-slate-600 last:hidden"></i>
-          `).join("") : `<span class="text-xs text-slate-600 italic">Empty Bucket (nullptr)</span>`}
+            <i class="fas fa-arrow-right text-[10px] text-slate-400 last:hidden"></i>
+          `).join("") : `<span class="text-xs text-slate-400 italic">Empty Bucket (nullptr)</span>`}
         </div>
       </div>
     `;
@@ -616,47 +454,261 @@ function renderHashTableVisualizer(donors) {
 }
 
 // -------------------------------------------------------------
-// Modals & Navigation
+// Interactive Hospital Actions
 // -------------------------------------------------------------
-function openPatientsListModal() {
-  const modal = document.getElementById("patients-list-modal");
-  const tbody = document.getElementById("patients-modal-table-body");
-  if (!modal || !tbody) return;
+function admitPatient(event) {
+  event.preventDefault();
 
-  fetch(`${API_BASE}/api/patients`).then(r => r.json()).then(patients => {
-    if (patients.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-slate-500">No patients currently registered in SQLite database.</td></tr>`;
-    } else {
-      tbody.innerHTML = patients.map(p => `
-        <tr class="border-b border-slate-800 text-xs">
-          <td class="py-2.5 px-3 font-mono font-bold text-sky-400">#${p.patient_id}</td>
-          <td class="py-2.5 px-3 font-semibold text-white">${p.name}</td>
-          <td class="py-2.5 px-3 text-slate-300">${p.age}</td>
-          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold">${p.blood_group}</span></td>
-          <td class="py-2.5 px-3 text-sky-300">${p.required_resource}</td>
-          <td class="py-2.5 px-3 text-slate-300">${p.severity}/10</td>
-          <td class="py-2.5 px-3 text-slate-300">${p.risk_level}/10</td>
-          <td class="py-2.5 px-3 text-slate-300">${p.waiting_time}m</td>
-          <td class="py-2.5 px-3 font-bold text-amber-400">${p.priority_score}</td>
-        </tr>
-      `).join("");
-    }
+  const name = document.getElementById("form-patient-name").value.trim();
+  const age = parseInt(document.getElementById("form-patient-age").value) || 45;
+  const bloodGroup = document.getElementById("form-patient-blood").value;
+  const severity = parseInt(document.getElementById("form-patient-severity").value) || 8;
+  const riskLevel = parseInt(document.getElementById("form-patient-risk").value) || 7;
+  const waitingTime = parseInt(document.getElementById("form-patient-wait").value) || 0;
+  const requiredResource = document.getElementById("form-patient-resource").value;
+
+  const newId = hospitalState.patients.length > 0
+    ? Math.max(...hospitalState.patients.map(p => p.patientId)) + 1
+    : 101;
+
+  const patient = {
+    patientId: newId,
+    name,
+    age,
+    bloodGroup,
+    bloodRequired: bloodGroup,
+    severity,
+    riskLevel,
+    waitingTime,
+    requiredResource
+  };
+
+  hospitalState.patients.push(patient);
+  saveState();
+
+  document.getElementById("patient-form").reset();
+  updateLiveScorePreview();
+  showToast(`Patient ${name} admitted & placed into Max-Heap Priority Queue!`, "success");
+}
+
+function processHighestPriorityPatient() {
+  if (hospitalState.patients.length === 0) {
+    showToast("Emergency queue is empty! No patients waiting.", "warning");
+    return;
+  }
+
+  // Find root of Max-Heap (Highest priority)
+  const ranked = [...hospitalState.patients].map(p => ({
+    patient: p,
+    priority: calculatePriority(p).priority
+  })).sort((a, b) => b.priority - a.priority);
+
+  triageSinglePatient(ranked[0].patient.patientId);
+}
+
+function triageSinglePatient(patientId) {
+  const idx = hospitalState.patients.findIndex(p => p.patientId === patientId);
+  if (idx === -1) return;
+
+  const patient = hospitalState.patients[idx];
+  const { priority } = calculatePriority(patient);
+
+  // 1. Hospital Bed Allocation (Parikshit Module)
+  const targetCategory = patient.requiredResource.toUpperCase();
+  const res = hospitalState.resources.find(r => {
+    return r.type.toUpperCase().includes(targetCategory) && r.state === "AVAILABLE";
   });
 
-  modal.classList.remove("hidden");
+  let resourceOutcome = "";
+  if (res) {
+    res.state = "OCCUPIED";
+    res.patientId = patient.patientId;
+    resourceOutcome = `Allocated ${res.type} #${res.id} (${res.floor})`;
+  } else {
+    resourceOutcome = `No ${patient.requiredResource} currently available. Placed on standby.`;
+  }
+
+  // 2. Blood Donor Match (Piyush Module)
+  let donorOutcome = "No blood transfusion required";
+  if (patient.bloodRequired) {
+    const matches = hospitalState.donors.map(d => ({
+      donor: d,
+      ...calculateDonorScore(d, patient.bloodGroup, priority)
+    })).filter(m => m.compatible).sort((a, b) => b.score - a.score);
+
+    if (matches.length > 0) {
+      const best = matches[0];
+      donorOutcome = `Matched with Donor ${best.donor.name} (${best.donor.bloodGroup}, ${best.donor.distance}km) - Match Score: ${best.score} pts`;
+    }
+  }
+
+  // Log Triage
+  hospitalState.triageLogs.unshift({
+    timestamp: new Date().toLocaleTimeString(),
+    patientId: patient.patientId,
+    name: patient.name,
+    priority,
+    resourceOutcome,
+    donorOutcome
+  });
+
+  // Remove from queue
+  hospitalState.patients.splice(idx, 1);
+  saveState();
+
+  showModal(patient, priority, resourceOutcome, donorOutcome);
 }
 
-function closePatientsListModal() {
-  const modal = document.getElementById("patients-list-modal");
-  if (modal) modal.classList.add("hidden");
+function boostWaitTime(patientId) {
+  const p = hospitalState.patients.find(pt => pt.patientId === patientId);
+  if (p) {
+    p.waitingTime = (p.waitingTime || 0) + 5;
+    saveState();
+    showToast(`Added +5m wait time to ${p.name}. Dynamic Priority adjusted!`, "info");
+  }
 }
 
-function showModalResult(patient, priority, resourceOutcome, donorOutcome) {
+function removePatient(patientId) {
+  const idx = hospitalState.patients.findIndex(p => p.patientId === patientId);
+  if (idx !== -1) {
+    const name = hospitalState.patients[idx].name;
+    hospitalState.patients.splice(idx, 1);
+    saveState();
+    showToast(`Removed patient ${name} from emergency queue`, "warning");
+  }
+}
+
+function setBedState(resourceId, newState) {
+  const res = hospitalState.resources.find(r => r.id === resourceId);
+  if (res) {
+    res.state = newState;
+    if (newState === "AVAILABLE") res.patientId = null;
+    saveState();
+  }
+}
+
+function toggleDonor(donorId) {
+  const d = hospitalState.donors.find(dn => dn.donorId == donorId);
+  if (d) {
+    d.available = !d.available;
+    saveState();
+  }
+}
+
+function runDonorMatch() {
+  const bloodGroup = document.getElementById("matcher-blood-group").value;
+  const urgency = parseInt(document.getElementById("matcher-urgency-score").value) || 50;
+
+  const container = document.getElementById("matcher-results");
+  if (!container) return;
+
+  const matches = hospitalState.donors.map(d => ({
+    donor: d,
+    ...calculateDonorScore(d, bloodGroup, urgency)
+  })).sort((a, b) => b.score - a.score);
+
+  container.innerHTML = matches.map((m, idx) => {
+    const isTop = idx === 0 && m.score > 0;
+    return `
+      <div class="p-3 rounded-xl border ${isTop ? 'border-amber-400 bg-amber-50/60' : 'border-slate-200 bg-white'} flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full ${isTop ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-700'} flex items-center justify-center font-bold text-xs">
+            #${idx + 1}
+          </div>
+          <div>
+            <h5 class="text-xs font-bold text-slate-900 flex items-center gap-2">
+              ${m.donor.name}
+              <span class="px-2 py-0.2 rounded bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">${m.donor.bloodGroup}</span>
+              ${isTop ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-bold uppercase">Optimal Donor</span>' : ''}
+            </h5>
+            <div class="text-[10px] text-slate-500 flex gap-2.5 mt-0.5 font-medium">
+              <span>Dist: ${m.donor.distance}km (+${m.distScore})</span>
+              <span>Compat: +${m.compScore}</span>
+              <span>Avail: +${m.availScore}</span>
+              <span>Urg: +${m.urgScore}</span>
+            </div>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-base font-black ${isTop ? 'text-amber-700' : 'text-slate-800'} font-mono">${m.score}</span>
+          <span class="text-[9px] text-slate-400 block uppercase font-bold">Pts</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// -------------------------------------------------------------
+// Database Inspector Simulation (SQLite in browser)
+// -------------------------------------------------------------
+function inspectTable(tableName) {
+  document.getElementById("sql-query-input").value = `SELECT * FROM ${tableName} LIMIT 10;`;
+  runSqlQuery();
+}
+
+function runSqlQuery() {
+  const query = document.getElementById("sql-query-input").value.trim();
+  const banner = document.getElementById("query-meta-banner");
+  const table = document.getElementById("query-results-table");
+
+  let tableName = "patients";
+  if (query.toLowerCase().includes("from resources")) tableName = "resources";
+  else if (query.toLowerCase().includes("from donors")) tableName = "donors";
+  else if (query.toLowerCase().includes("from blood_units")) tableName = "blood_units";
+
+  const data = hospitalState[tableName] || [];
+  banner.innerHTML = `<span class="text-teal-700 font-bold"><i class="fas fa-check-circle mr-1"></i> Executed on SQLite (${tableName}):</span> Returned <strong class="text-slate-900">${data.length}</strong> records.`;
+
+  if (data.length === 0) {
+    table.innerHTML = `<tr><td class="p-3 text-slate-400">No records found in table ${tableName}.</td></tr>`;
+    return;
+  }
+
+  const columns = Object.keys(data[0]);
+  let html = `<thead><tr class="border-b border-slate-200 bg-slate-100 text-slate-700 font-bold">`;
+  columns.forEach(c => html += `<th class="py-2 px-3">${c}</th>`);
+  html += `</tr></thead><tbody>`;
+
+  data.forEach(row => {
+    html += `<tr class="border-b border-slate-200/60 hover:bg-slate-50">`;
+    columns.forEach(c => html += `<td class="py-1.5 px-3">${row[c] !== null ? row[c] : 'NULL'}</td>`);
+    html += `</tr>`;
+  });
+  html += `</tbody>`;
+  table.innerHTML = html;
+}
+
+// -------------------------------------------------------------
+// Demo Scenarios & Helper Modals
+// -------------------------------------------------------------
+function loadScenario(type) {
+  if (type === "highway-surge") {
+    hospitalState.patients = [
+      { patientId: 201, name: "Vikram Malhotra (Trauma)", age: 34, bloodGroup: "A+", bloodRequired: "A+", severity: 10, riskLevel: 9, waitingTime: 5, requiredResource: "ICU" },
+      { patientId: 202, name: "Pooja Verma (Fracture/Shock)", age: 28, bloodGroup: "O-", bloodRequired: "O-", severity: 9, riskLevel: 8, waitingTime: 12, requiredResource: "ICU" },
+      { patientId: 203, name: "Aman Gupta (Hypoxia)", age: 52, bloodGroup: "B+", bloodRequired: "B+", severity: 6, riskLevel: 7, waitingTime: 25, requiredResource: "OXYGEN" },
+      { patientId: 204, name: "Rohit Saxena (Lacerations)", age: 22, bloodGroup: "O+", bloodRequired: "O+", severity: 4, riskLevel: 3, waitingTime: 40, requiredResource: "GENERAL" }
+    ];
+    saveState();
+    showToast("Loaded Scenario: Highway Multi-Car Collision Surge!", "success");
+  } else if (type === "rare-blood") {
+    hospitalState.patients = [
+      { patientId: 301, name: "Dr. Ananya Ray (Hemorrhage)", age: 38, bloodGroup: "AB-", bloodRequired: "AB-", severity: 9, riskLevel: 9, waitingTime: 10, requiredResource: "ICU" }
+    ];
+    saveState();
+    showToast("Loaded Scenario: Rare AB- Critical Case!", "warning");
+  } else if (type === "reset") {
+    resetState();
+    showToast("Hospital beds and patient records reset to default state.", "info");
+  }
+}
+
+function showModal(patient, priority, resourceOutcome, donorOutcome) {
   const modal = document.getElementById("triage-result-modal");
   if (!modal) return;
 
   document.getElementById("modal-patient-name").innerText = patient.name;
-  document.getElementById("modal-priority-score").innerText = priority;
+  document.getElementById("modal-priority-score").innerText = `${priority} pts`;
   document.getElementById("modal-resource-result").innerText = resourceOutcome;
   document.getElementById("modal-donor-result").innerText = donorOutcome;
 
@@ -666,27 +718,6 @@ function showModalResult(patient, priority, resourceOutcome, donorOutcome) {
 function closeModal() {
   const modal = document.getElementById("triage-result-modal");
   if (modal) modal.classList.add("hidden");
-}
-
-function showToast(message, type = "info") {
-  const toast = document.createElement("div");
-  let border = "border-sky-500 bg-sky-950/90 text-sky-200";
-  if (type === "success") border = "border-emerald-500 bg-emerald-950/90 text-emerald-200";
-  if (type === "warning") border = "border-amber-500 bg-amber-950/90 text-amber-200";
-
-  toast.className = `fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl border ${border} shadow-2xl text-sm font-semibold transition transform duration-300 translate-y-2 flex items-center gap-2`;
-  toast.innerHTML = `<i class="fas fa-info-circle"></i> <span>${message}</span>`;
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.classList.remove("translate-y-2");
-    toast.classList.add("translate-y-0");
-  }, 10);
-
-  setTimeout(() => {
-    toast.classList.add("opacity-0", "translate-y-4");
-    setTimeout(() => toast.remove(), 300);
-  }, 3500);
 }
 
 function updateLiveScorePreview() {
@@ -706,47 +737,52 @@ function updateLiveScorePreview() {
 
 function switchTab(tabId) {
   document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
-  document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(el => {
+    el.classList.remove("active", "bg-sky-600", "text-white", "shadow-sm");
+    el.classList.add("text-slate-600");
+  });
 
   const target = document.getElementById(`tab-${tabId}`);
   const btn = document.getElementById(`btn-tab-${tabId}`);
 
   if (target) target.classList.remove("hidden");
-  if (btn) btn.classList.add("active");
-
-  if (tabId === "database") {
-    executeCurrentQuery();
+  if (btn) {
+    btn.classList.add("active", "bg-sky-600", "text-white", "shadow-sm");
+    btn.classList.remove("text-slate-600");
   }
+
+  if (tabId === "donors") runDonorMatch();
+  if (tabId === "database") runSqlQuery();
 }
 
-async function loadScenario(type) {
-  const scenarios = {
-    "highway-surge": [
-      { name: "Vikram Malhotra", age: 34, blood_group: "A+", severity: 10, risk_level: 9, waiting_time: 5, required_resource: "ICU" },
-      { name: "Pooja Verma", age: 28, blood_group: "O-", severity: 9, risk_level: 8, waiting_time: 12, required_resource: "ICU" },
-      { name: "Aman Gupta", age: 52, blood_group: "B+", severity: 6, risk_level: 7, waiting_time: 25, required_resource: "OXYGEN" },
-      { name: "Rohit Saxena", age: 22, blood_group: "O+", severity: 4, risk_level: 3, waiting_time: 40, required_resource: "GENERAL" }
-    ],
-    "rare-blood": [
-      { name: "Dr. Ananya Ray", age: 38, blood_group: "AB-", severity: 9, risk_level: 9, waiting_time: 10, required_resource: "ICU" }
-    ]
-  };
+function showToast(message, type = "info") {
+  const toast = document.createElement("div");
+  let border = "border-sky-300 bg-sky-50 text-sky-900";
+  if (type === "success") border = "border-emerald-300 bg-emerald-50 text-emerald-900";
+  if (type === "warning") border = "border-amber-300 bg-amber-50 text-amber-900";
 
-  const toAdd = scenarios[type] || [];
-  for (const pat of toAdd) {
-    await fetch(`${API_BASE}/api/patients`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(pat)
-    });
-  }
-  showToast(`Loaded scenario into SQLite database!`, "success");
-  refreshAll();
+  toast.className = `fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl border ${border} shadow-lg text-xs font-bold transition transform duration-300 translate-y-2 flex items-center gap-2`;
+  toast.innerHTML = `<i class="fas fa-hospital-symbol"></i> <span>${message}</span>`;
+  document.body.appendChild(toast);
+
+  setTimeout(() => toast.classList.remove("translate-y-2"), 10);
+  setTimeout(() => {
+    toast.classList.add("opacity-0", "translate-y-4");
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
 }
 
-// Initialize on DOM Ready
+function renderAll() {
+  renderHeaderStats();
+  renderEmergencyQueue();
+  renderHospitalResources();
+  renderBloodDonors();
+  renderHashTableVisualizer();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  refreshAll();
+  loadState();
+  renderAll();
   updateLiveScorePreview();
   runDonorMatch();
 });

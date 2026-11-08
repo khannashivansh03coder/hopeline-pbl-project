@@ -1,0 +1,19 @@
+services:
+  # 1. Frontend Web Service / Static Site (Can also be deployed on Vercel)
+  - type: web
+    name: hopeline-frontend
+    env: static
+    buildCommand: ""
+    staticPublishPath: modules/parikshit/website/frontend
+    pullRequestPreviewsEnabled: false
+
+  # 2. Backend FastAPI REST API
+  - type: web
+    name: hopeline-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r modules/parikshit/website/backend/requirements.txt
+    startCommand: python -m uvicorn modules.parikshit.website.backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0

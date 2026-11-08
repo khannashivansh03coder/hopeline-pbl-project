@@ -3,110 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HopeLine - Smart Hospital Resource & Blood Donor System (Phase 3 Fullstack)</title>
+  <title>HopeLine | Smart Hospital Resource & Blood Donor System</title>
+  <meta name="description" content="HopeLine: Hospital Emergency Resource Allocation & Blood Donor Matching System. PBL Phase 3 Project by Team CodePulse, Graphic Era University.">
+  <meta name="author" content="Parikshit Thakur | parikshit07.tech">
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
+  <!-- FontAwesome 6 Medical Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Custom Styling -->
+  <!-- Medical Theme Styling -->
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-sky-500 selection:text-white">
+<body class="clinical-grid min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
 
-  <!-- TOP NAVBAR -->
-  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+  <!-- TOP EMERGENCY DISPATCH RIBBON -->
+  <div class="bg-slate-900 text-slate-300 text-xs border-b border-slate-800 py-1.5 px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-1.5 font-semibold text-emerald-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 vital-blinker"></span>
+        <span>HOSPITAL EMERGENCY SYSTEM: ONLINE</span>
+      </div>
+      <span class="text-slate-600 hidden md:inline">|</span>
+      <span class="text-slate-400 hidden md:inline">Graphic Era (Deemed to be University) • Department of CSE</span>
+    </div>
+    <div class="flex items-center gap-4 text-[11px]">
+      <span class="font-mono text-slate-400"><i class="fas fa-satellite-dish text-sky-400 mr-1"></i> Live Dispatch Triage</span>
+      <span class="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 font-mono font-bold">parikshit07.tech</span>
+    </div>
+  </div>
+
+  <!-- CLINICAL HEADER & HOSPITAL BRANDING -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
+      <div class="flex items-center justify-between h-20">
         
-        <!-- Brand -->
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
-            <i class="fas fa-heartbeat text-xl"></i>
+        <!-- Hospital Brand -->
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-sky-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+            <i class="fas fa-hospital text-2xl"></i>
           </div>
           <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xl font-extrabold tracking-tight text-white">HopeLine</span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">FULLSTACK PHASE-3</span>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 hidden sm:inline">SQLite + FastAPI</span>
+            <div class="flex items-center gap-2.5">
+              <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">Hope<span class="text-sky-600">Line</span></h1>
+              <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1">
+                <i class="fas fa-heartbeat text-rose-500 heartbeat-live"></i> EMERGENCY DISPATCH
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 hidden sm:inline">PHASE-III PBL</span>
             </div>
-            <p class="text-[11px] text-slate-400">Graphic Era University • Team CodePulse (T225)</p>
+            <p class="text-xs text-slate-500 font-medium">Smart Hospital Resource & Blood Donor Matching System • Team CodePulse</p>
           </div>
         </div>
 
-        <!-- Quick Live Stat Badges from Database -->
-        <div class="hidden md:flex items-center gap-4 text-xs">
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700">
-            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-            <span class="text-slate-400">DB Queue:</span>
-            <span id="stat-active-patients" class="font-bold text-white">0</span>
+        <!-- Live Hospital Vitals Counter Ribbon -->
+        <div class="hidden lg:flex items-center gap-3">
+          <div class="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center">
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">Queue Wait</span>
+            <div class="flex items-center justify-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-rose-500 vital-blinker"></span>
+              <span id="stat-active-patients" class="text-base font-black text-rose-600 font-mono">0</span>
+            </div>
           </div>
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700">
-            <i class="fas fa-bed text-sky-400"></i>
-            <span class="text-slate-400">ICU:</span>
-            <span id="stat-icu-beds" class="font-bold text-sky-400">0 / 5</span>
+
+          <div class="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center">
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">ICU Beds</span>
+            <span id="stat-icu-beds" class="text-base font-black text-sky-600 font-mono">5 / 5</span>
           </div>
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700">
-            <i class="fas fa-lungs text-teal-400"></i>
-            <span class="text-slate-400">Oxygen:</span>
-            <span id="stat-oxygen-units" class="font-bold text-teal-400">0 / 5</span>
+
+          <div class="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center">
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">Oxygen Units</span>
+            <span id="stat-oxygen-units" class="text-base font-black text-teal-600 font-mono">5 / 5</span>
           </div>
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700">
-            <i class="fas fa-tint text-rose-400"></i>
-            <span class="text-slate-400">Donors:</span>
-            <span id="stat-ready-donors" class="font-bold text-rose-400">0</span>
+
+          <div class="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center">
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">Ready Donors</span>
+            <span id="stat-ready-donors" class="text-base font-black text-rose-600 font-mono">0</span>
           </div>
         </div>
 
-        <!-- Action Links: Swagger Docs & Sync -->
+        <!-- Emergency Presets & Reset -->
         <div class="flex items-center gap-2">
-          <a href="/docs" target="_blank" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/50 transition flex items-center gap-1.5" title="Interactive FastAPI Swagger API Explorer">
-            <i class="fas fa-terminal text-indigo-400"></i>
-            <span class="hidden sm:inline">Swagger API Docs</span>
-          </a>
-          <button onclick="syncToCppFiles()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition" title="Export SQLite rows back to C++ data/*.json">
-            <i class="fas fa-file-export text-emerald-400 mr-1"></i> Sync C++
+          <button onclick="loadScenario('reset')" class="text-xs font-semibold px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition flex items-center gap-1.5" title="Reset hospital beds and emergency cases to default state">
+            <i class="fas fa-rotate-right text-slate-500"></i>
+            <span class="hidden sm:inline">Reset Hospital</span>
           </button>
         </div>
 
       </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="flex space-x-1 sm:space-x-2 border-t border-slate-800/60 py-2 overflow-x-auto">
-        <button id="btn-tab-triage" onclick="switchTab('triage')" class="tab-btn active px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-2 whitespace-nowrap">
-          <i class="fas fa-ambulance text-rose-400"></i>
+      <!-- Clinical Navigation Tabs -->
+      <nav class="flex space-x-1 sm:space-x-2 border-t border-slate-100 py-2 overflow-x-auto text-xs font-semibold">
+        <button id="btn-tab-triage" onclick="switchTab('triage')" class="tab-btn active px-4 py-2 rounded-lg transition flex items-center gap-2 whitespace-nowrap bg-sky-600 text-white shadow-sm">
+          <i class="fas fa-ambulance text-rose-200"></i>
           <span>Emergency Triage & Queue</span>
         </button>
 
-        <button id="btn-tab-resources" onclick="switchTab('resources')" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap">
-          <i class="fas fa-hospital text-sky-400"></i>
+        <button id="btn-tab-resources" onclick="switchTab('resources')" class="tab-btn px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-2 whitespace-nowrap">
+          <i class="fas fa-procedures text-sky-600"></i>
           <span>Hospital Resources (Parikshit)</span>
         </button>
 
-        <button id="btn-tab-donors" onclick="switchTab('donors')" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap">
-          <i class="fas fa-hand-holding-medical text-rose-400"></i>
-          <span>Blood Matching & Donors</span>
+        <button id="btn-tab-donors" onclick="switchTab('donors')" class="tab-btn px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-2 whitespace-nowrap">
+          <i class="fas fa-tint text-rose-600"></i>
+          <span>Blood Bank & Donors</span>
         </button>
 
-        <button id="btn-tab-database" onclick="switchTab('database')" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap">
-          <i class="fas fa-database text-emerald-400"></i>
-          <span>SQL Database Explorer</span>
+        <button id="btn-tab-ds" onclick="switchTab('ds')" class="tab-btn px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-2 whitespace-nowrap">
+          <i class="fas fa-sitemap text-amber-600"></i>
+          <span>C++ DSA Engine (Heap & Hash Table)</span>
         </button>
 
-        <button id="btn-tab-ds" onclick="switchTab('ds')" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap">
-          <i class="fas fa-project-diagram text-amber-400"></i>
-          <span>Data Structures & OOP</span>
+        <button id="btn-tab-database" onclick="switchTab('database')" class="tab-btn px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-2 whitespace-nowrap">
+          <i class="fas fa-database text-teal-600"></i>
+          <span>Hospital Database (SQLite)</span>
         </button>
 
-        <button id="btn-tab-about" onclick="switchTab('about')" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap">
-          <i class="fas fa-users text-teal-400"></i>
-          <span>Project & Team</span>
+        <button id="btn-tab-about" onclick="switchTab('about')" class="tab-btn px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-2 whitespace-nowrap">
+          <i class="fas fa-hospital-user text-indigo-600"></i>
+          <span>Team CodePulse & Proposal</span>
         </button>
       </nav>
 
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
+  <!-- MAIN VIEWPORT -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
     <!-- ======================================================== -->
@@ -114,23 +134,25 @@
     <!-- ======================================================== -->
     <div id="tab-triage" class="tab-content space-y-6">
 
-      <!-- Viva Simulation Presets -->
-      <div class="glass-panel p-4 flex flex-col sm:flex-row items-center justify-between gap-3 border border-slate-800">
+      <!-- Hospital Emergency Dispatch Controls -->
+      <div class="medical-card p-4 border-l-4 border-l-rose-500 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">
-            <i class="fas fa-play"></i>
-          </span>
+          <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg font-bold">
+            <i class="fas fa-truck-medical"></i>
+          </div>
           <div>
-            <h4 class="text-sm font-bold text-white">Live Evaluator Demo Presets (DB Driven)</h4>
-            <p class="text-xs text-slate-400">Simulate incoming emergency cases directly into the SQLite database.</p>
+            <h3 class="text-sm font-bold text-slate-900">Hospital Emergency Admission & Real-Time Triage</h3>
+            <p class="text-xs text-slate-500">Prioritizes incoming critical patients using the Emergency Severity Index (ESI) formula and Binary Max-Heap.</p>
           </div>
         </div>
-        <div class="flex items-center gap-2 flex-wrap">
-          <button onclick="loadScenario('highway-surge')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/20 transition">
-            <i class="fas fa-car-crash mr-1"></i> Multi-Car Collision (Surge of 4)
+
+        <div class="flex items-center gap-2 flex-wrap text-xs">
+          <span class="text-slate-500 font-medium">Demo Emergencies:</span>
+          <button onclick="loadScenario('highway-surge')" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold transition flex items-center gap-1.5">
+            <i class="fas fa-car-crash text-rose-500"></i> Highway Crash (Surge of 4)
           </button>
-          <button onclick="loadScenario('rare-blood')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 transition">
-            <i class="fas fa-tint mr-1"></i> Rare AB- Emergency
+          <button onclick="loadScenario('rare-blood')" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-semibold transition flex items-center gap-1.5">
+            <i class="fas fa-tint text-indigo-500"></i> Critical AB- Patient
           </button>
         </div>
       </div>
@@ -139,94 +161,94 @@
 
         <!-- Admission Form (5 Cols) -->
         <div class="lg:col-span-5 space-y-6">
-          <div class="glass-panel p-5 border border-slate-800">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div class="medical-card p-5 border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
               <div class="flex items-center gap-2">
-                <i class="fas fa-user-plus text-sky-400"></i>
-                <h3 class="font-bold text-white text-base">Patient Admission & Triage</h3>
+                <i class="fas fa-user-injured text-sky-600"></i>
+                <h4 class="font-bold text-slate-900 text-sm">Admit Patient to Emergency</h4>
               </div>
-              <span class="text-xs text-slate-400 font-mono">Formula: (S×5)+(R×3)+(W×2)</span>
+              <span class="text-[11px] font-mono text-slate-400">Formula: (S×5)+(R×3)+(W×2)</span>
             </div>
 
-            <form id="patient-form" onsubmit="handlePatientSubmit(event)" class="space-y-4 mt-4">
+            <form id="patient-form" onsubmit="admitPatient(event)" class="space-y-4 mt-4">
               <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Patient Full Name</label>
-                <input type="text" id="form-patient-name" required placeholder="e.g. Vikram Sharma" class="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-sky-500 text-white">
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Patient Full Name</label>
+                <input type="text" id="form-patient-name" required placeholder="e.g. Ramesh Chandra" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-slate-900">
               </div>
 
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1">Age</label>
-                  <input type="number" id="form-patient-age" min="1" max="110" value="45" required class="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-sky-500 text-white">
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Age</label>
+                  <input type="number" id="form-patient-age" min="1" max="110" value="48" required class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-slate-900">
                 </div>
                 <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1">Blood Group</label>
-                  <select id="form-patient-blood" class="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-sky-500 text-white">
-                    <option value="O+">O+</option>
-                    <option value="O-">O- (Universal)</option>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Blood Group</label>
+                  <select id="form-patient-blood" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-slate-900 font-semibold">
+                    <option value="O+">O+ (Common)</option>
+                    <option value="O-">O- (Universal Donor)</option>
                     <option value="A+">A+</option>
                     <option value="A-">A-</option>
                     <option value="B+">B+</option>
                     <option value="B-">B-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
+                    <option value="AB+">AB+ (Universal Receiver)</option>
+                    <option value="AB-">AB- (Rare)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Required Hospital Resource</label>
-                <select id="form-patient-resource" class="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-sky-500 text-white">
-                  <option value="ICU">ICU Bed (Critical Life Support)</option>
-                  <option value="GENERAL">General Ward Bed</option>
-                  <option value="OXYGEN">Oxygen Cylinder / Respiratory</option>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Required Hospital Unit</label>
+                <select id="form-patient-resource" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-slate-900 font-medium">
+                  <option value="ICU">ICU Bed (Critical Life Support / Ventilator)</option>
+                  <option value="GENERAL">General Medical Ward Bed</option>
+                  <option value="OXYGEN">Oxygen Cylinder (Respiratory Support)</option>
                 </select>
               </div>
 
               <!-- Severity Slider -->
               <div>
-                <div class="flex justify-between text-xs text-slate-300 mb-1">
-                  <span>Emergency Severity (1–10):</span>
-                  <span id="label-severity" class="font-bold text-rose-400">8</span>
+                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                  <span>Emergency Severity (1 to 10):</span>
+                  <span id="label-severity" class="font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">8</span>
                 </div>
-                <input type="range" id="form-patient-severity" min="1" max="10" value="8" oninput="updateLiveScorePreview()" class="w-full accent-rose-500">
-                <div class="flex justify-between text-[10px] text-slate-500">
-                  <span>Minor (1)</span>
+                <input type="range" id="form-patient-severity" min="1" max="10" value="8" oninput="updateLiveScorePreview()" class="w-full accent-rose-600">
+                <div class="flex justify-between text-[10px] text-slate-400">
+                  <span>Mild (1)</span>
                   <span>Moderate (5)</span>
-                  <span>Life Threatening (10)</span>
+                  <span>Cardiac / Trauma (10)</span>
                 </div>
               </div>
 
               <!-- Risk Slider -->
               <div>
-                <div class="flex justify-between text-xs text-slate-300 mb-1">
-                  <span>Underlying Risk / Comorbidity (1–10):</span>
-                  <span id="label-risk" class="font-bold text-amber-400">7</span>
+                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                  <span>Underlying Risk / Comorbidities (1 to 10):</span>
+                  <span id="label-risk" class="font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">7</span>
                 </div>
-                <input type="range" id="form-patient-risk" min="1" max="10" value="7" oninput="updateLiveScorePreview()" class="w-full accent-amber-500">
+                <input type="range" id="form-patient-risk" min="1" max="10" value="7" oninput="updateLiveScorePreview()" class="w-full accent-amber-600">
               </div>
 
               <!-- Waiting Time -->
               <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Current Waiting Time (Minutes)</label>
-                <input type="number" id="form-patient-wait" min="0" max="300" value="10" oninput="updateLiveScorePreview()" class="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:border-sky-500 text-white">
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Initial Waiting Time (Minutes)</label>
+                <input type="number" id="form-patient-wait" min="0" max="300" value="10" oninput="updateLiveScorePreview()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 text-slate-900">
               </div>
 
-              <!-- Dynamic Score Preview Banner -->
-              <div class="p-3 rounded-lg bg-sky-950/40 border border-sky-800/50 flex items-center justify-between">
+              <!-- Dynamic Triage Score Card -->
+              <div class="p-3.5 rounded-xl bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-100 flex items-center justify-between">
                 <div>
-                  <span class="text-xs text-slate-400 block">Computed Priority Score:</span>
-                  <span class="text-[11px] text-sky-400">Stored in SQLite `patients` table</span>
+                  <span class="text-xs font-semibold text-slate-600 block">Computed Priority Score:</span>
+                  <span class="text-[11px] text-sky-700 font-medium">Automatic Max-Heap Ranking</span>
                 </div>
                 <div class="text-right">
-                  <span id="live-priority-score" class="text-2xl font-black text-sky-300">65</span>
-                  <span class="text-[10px] text-slate-400 block uppercase font-bold">pts</span>
+                  <span id="live-priority-score" class="text-3xl font-black text-sky-700 font-mono">65</span>
+                  <span class="text-[10px] text-sky-600 block uppercase font-bold">Points</span>
                 </div>
               </div>
 
-              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-lg shadow-sky-600/30 transition flex items-center justify-center gap-2">
+              <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md shadow-sky-600/20 transition flex items-center justify-center gap-2">
                 <i class="fas fa-plus-circle"></i>
-                <span>Admit & Enqueue Patient (POST /api/patients)</span>
+                <span>Admit & Enqueue Patient</span>
               </button>
             </form>
           </div>
@@ -236,40 +258,38 @@
         <div class="lg:col-span-7 space-y-6">
 
           <!-- Queue Container -->
-          <div class="glass-panel p-5 border border-slate-800">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 mb-4 gap-2">
+          <div class="medical-card p-5 border border-slate-200">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 mb-4 gap-2">
               <div class="flex items-center gap-2">
-                <i class="fas fa-layer-group text-rose-400"></i>
-                <h3 class="font-bold text-white text-base">Emergency Priority Queue</h3>
-                <span class="text-[11px] text-slate-400 font-mono">(Max-Heap)</span>
+                <i class="fas fa-layer-group text-rose-500"></i>
+                <h4 class="font-bold text-slate-900 text-sm">Active Emergency Priority Queue</h4>
+                <span class="text-[11px] font-mono text-slate-400">(Max-Heap)</span>
               </div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <button onclick="openPatientsListModal()" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5" title="View all registered patient records (C++ Option 2)">
-                  <i class="fas fa-list text-sky-400"></i> All Records (Opt 2)
-                </button>
-                <button onclick="processHighestPriorityPatient()" class="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5" title="Process root of Max-Heap (C++ Option 4)">
-                  <i class="fas fa-bolt text-amber-300"></i> Process Top (Opt 4)
+              <div class="flex items-center gap-2">
+                <button onclick="processHighestPriorityPatient()" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition flex items-center gap-1.5" title="Allocate bed and process the patient at root of the Max-Heap">
+                  <i class="fas fa-bolt text-amber-300"></i>
+                  <span>Process Top Patient (Option 4)</span>
                 </button>
               </div>
             </div>
 
-            <!-- Queue Cards List -->
+            <!-- Queue Cards Feed -->
             <div id="patient-queue-list" class="space-y-3 max-h-[460px] overflow-y-auto pr-1">
-              <!-- Dynamically populated from backend -->
+              <!-- Dynamically populated from JS -->
             </div>
           </div>
 
           <!-- Max-Heap Binary Tree Visualizer -->
-          <div class="glass-panel p-5 border border-slate-800">
-            <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-3">
+          <div class="medical-card p-5 border border-slate-200">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-3">
               <div class="flex items-center gap-2">
-                <i class="fas fa-sitemap text-amber-400"></i>
-                <h3 class="font-bold text-white text-sm">Active Binary Max-Heap Tree Layout</h3>
+                <i class="fas fa-sitemap text-amber-500"></i>
+                <h4 class="font-bold text-slate-900 text-xs">Binary Max-Heap Tree Layout</h4>
               </div>
               <span class="text-[11px] text-slate-400 font-mono">Parent: [i] | Left: [2i+1] | Right: [2i+2]</span>
             </div>
-            <p class="text-xs text-slate-400 mb-3">Visualizes the internal heap property: every parent node has a higher priority score than its children.</p>
-            <div id="heap-tree-visualizer" class="overflow-x-auto min-h-[140px] flex items-center justify-center">
+            <p class="text-xs text-slate-500 mb-3">Visualizes how the highest-priority patient always sits at the ROOT of the tree for O(1) peek and O(log n) dequeue.</p>
+            <div id="heap-tree-visualizer" class="overflow-x-auto min-h-[140px] flex items-center justify-center p-2 bg-slate-50 rounded-xl border border-slate-100">
               <!-- Dynamically generated tree nodes -->
             </div>
           </div>
@@ -284,32 +304,29 @@
     <!-- ======================================================== -->
     <div id="tab-resources" class="tab-content hidden space-y-6">
 
-      <!-- Parikshit Module Header -->
-      <div class="glass-panel p-5 border border-sky-500/30 bg-gradient-to-r from-sky-950/40 via-slate-900 to-slate-900">
+      <!-- Hospital Ward Header -->
+      <div class="medical-card p-6 border-l-4 border-l-sky-500 bg-gradient-to-r from-white via-sky-50/20 to-white">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-sky-600/20 border border-sky-500/40 flex items-center justify-center text-sky-400 text-2xl">
+            <div class="w-12 h-12 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-2xl font-bold">
               <i class="fas fa-hospital-user"></i>
             </div>
             <div>
-              <div class="flex items-center gap-2">
-                <h3 class="text-lg font-bold text-white">Hospital Resource Management Module</h3>
-                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/40">Parikshit Thakur's Component</span>
+              <div class="flex items-center gap-2.5">
+                <h3 class="text-lg font-bold text-slate-900">Hospital Resource Management Module</h3>
+                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">Parikshit Thakur's Module</span>
               </div>
-              <p class="text-xs text-slate-400 mt-1">
-                Polymorphic resource hierarchy (<code class="text-sky-300">Hospital</code>, <code class="text-sky-300">Resource</code>, <code class="text-sky-300">ICUBed</code>, <code class="text-sky-300">GeneralBed</code>, <code class="text-sky-300">OxygenUnit</code>) backed by SQLite <code class="text-emerald-300">resources</code> table.
+              <p class="text-xs text-slate-500 mt-1">
+                Implements object-oriented resource polymorphism in C++ (<code class="text-sky-700">Hospital</code>, <code class="text-sky-700">Resource</code>, <code class="text-sky-700">ICUBed</code>, <code class="text-sky-700">GeneralBed</code>, <code class="text-sky-700">OxygenUnit</code>).
               </p>
             </div>
           </div>
 
-          <div class="flex items-center gap-2 text-xs">
-            <span class="text-slate-400">Total Units: <strong class="text-white">15</strong></span>
-            <span class="text-slate-600">•</span>
-            <span class="text-slate-400">5 ICU</span>
-            <span class="text-slate-600">•</span>
-            <span class="text-slate-400">5 General</span>
-            <span class="text-slate-600">•</span>
-            <span class="text-slate-400">5 Oxygen</span>
+          <div class="flex items-center gap-3 text-xs font-semibold">
+            <span class="px-2.5 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200">Total Units: 15</span>
+            <span class="px-2.5 py-1 rounded bg-rose-50 text-rose-700 border border-rose-200">5 ICU Beds</span>
+            <span class="px-2.5 py-1 rounded bg-sky-50 text-sky-700 border border-sky-200">5 General Beds</span>
+            <span class="px-2.5 py-1 rounded bg-teal-50 text-teal-700 border border-teal-200">5 Oxygen Cylinders</span>
           </div>
         </div>
       </div>
@@ -317,42 +334,42 @@
       <!-- Resource Cards Grid -->
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <h4 class="font-bold text-white text-base flex items-center gap-2">
-            <i class="fas fa-th-large text-sky-400"></i>
-            <span>Live Resource Units & Allocation Controls (PATCH /api/resources)</span>
+          <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <i class="fas fa-th-large text-sky-600"></i>
+            <span>Interactive Hospital Ward Units</span>
           </h4>
-          <span class="text-xs text-slate-400">Interactive live states: Available, Occupied, Reserved</span>
+          <span class="text-xs text-slate-500">Click Occupy / Discharge to update bed states live</span>
         </div>
 
         <div id="hospital-resources-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <!-- Dynamically populated 15 resource cards from SQLite -->
+          <!-- Dynamically populated 15 resource cards -->
         </div>
       </div>
 
     </div>
 
     <!-- ======================================================== -->
-    <!-- TAB 3: BLOOD MATCHING & DONORS (PIYUSH MODULE) -->
+    <!-- TAB 3: BLOOD BANK & DONORS (PIYUSH MODULE) -->
     <!-- ======================================================== -->
     <div id="tab-donors" class="tab-content hidden space-y-6">
 
-      <!-- Interactive Donor Matching Simulator -->
-      <div class="glass-panel p-5 border border-slate-800">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+      <!-- Interactive Donor Matcher -->
+      <div class="medical-card p-6 border-l-4 border-l-rose-500">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
           <div class="flex items-center gap-2">
-            <i class="fas fa-calculator text-rose-400"></i>
-            <h3 class="font-bold text-white text-base">Smart Blood Donor Matching Simulator (POST /api/donors/match)</h3>
+            <i class="fas fa-calculator text-rose-600"></i>
+            <h3 class="font-bold text-slate-900 text-base">Smart Blood Donor Matching Simulator</h3>
           </div>
-          <span class="text-xs text-slate-400">Score = Compatibility (50/40) + Avail (20) + Distance (20) + Urgency (10)</span>
+          <span class="text-xs font-mono text-slate-500">Score = Compat(50/40) + Avail(20) + (20 - Dist/5) + Urg/10</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
           <div class="md:col-span-4 space-y-4">
             <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Target Patient Blood Group</label>
-              <select id="matcher-blood-group" onchange="runDonorMatch()" class="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-white">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Target Patient Blood Group</label>
+              <select id="matcher-blood-group" onchange="runDonorMatch()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-bold">
                 <option value="O+">O+</option>
-                <option value="O-">O-</option>
+                <option value="O-">O- (Universal Donor)</option>
                 <option value="A+">A+</option>
                 <option value="A-">A-</option>
                 <option value="B+">B+</option>
@@ -363,17 +380,17 @@
             </div>
 
             <div>
-              <label class="block text-xs font-medium text-slate-300 mb-1">Emergency Urgency Score (0–100)</label>
-              <input type="number" id="matcher-urgency-score" min="0" max="100" value="70" oninput="runDonorMatch()" class="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-white">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Emergency Urgency Score (0 to 100)</label>
+              <input type="number" id="matcher-urgency-score" min="0" max="100" value="70" oninput="runDonorMatch()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono font-bold">
             </div>
 
-            <button onclick="runDonorMatch()" class="w-full py-2 px-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center justify-center gap-2">
-              <i class="fas fa-search"></i> Recompute Top Match
+            <button onclick="runDonorMatch()" class="w-full py-2 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center justify-center gap-2">
+              <i class="fas fa-search"></i> Find Optimal Match
             </button>
           </div>
 
           <div class="md:col-span-8 space-y-2">
-            <h5 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Ranked Candidate Donors from Database</h5>
+            <h5 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ranked Compatible Donors</h5>
             <div id="matcher-results" class="space-y-2 max-h-[220px] overflow-y-auto">
               <!-- Dynamically populated -->
             </div>
@@ -382,43 +399,43 @@
       </div>
 
       <!-- Donors Database Table -->
-      <div class="glass-panel p-5 border border-slate-800">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+      <div class="medical-card p-5 border border-slate-200">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
           <div class="flex items-center gap-2">
-            <i class="fas fa-address-book text-sky-400"></i>
-            <h3 class="font-bold text-white text-base">Registered Blood Donors Database (SQLite Table: `donors`)</h3>
+            <i class="fas fa-address-book text-sky-600"></i>
+            <h4 class="font-bold text-slate-900 text-sm">Registered Blood Donors Directory</h4>
           </div>
-          <span class="text-xs text-slate-400">Auto-synced with <code class="text-sky-300">data/donors.json</code></span>
+          <span class="text-xs text-slate-500">Piyush Srivastava's Module</span>
         </div>
 
         <div class="overflow-x-auto">
-          <table class="w-full text-left">
+          <table class="w-full text-left text-xs">
             <thead>
-              <tr class="border-b border-slate-700 text-xs font-semibold text-slate-400 uppercase">
+              <tr class="border-b border-slate-200 text-slate-500 font-semibold uppercase bg-slate-50">
                 <th class="py-2.5 px-4">Donor ID</th>
-                <th class="py-2.5 px-4">Name</th>
+                <th class="py-2.5 px-4">Full Name</th>
                 <th class="py-2.5 px-4">Blood Group</th>
                 <th class="py-2.5 px-4">Distance</th>
-                <th class="py-2.5 px-4">Last Donated</th>
+                <th class="py-2.5 px-4">Last Donation</th>
                 <th class="py-2.5 px-4">Status</th>
                 <th class="py-2.5 px-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody id="donors-table-body">
-              <!-- Dynamically populated from SQLite -->
+              <!-- Dynamically populated from JS -->
             </tbody>
           </table>
         </div>
       </div>
 
       <!-- Blood Bank Inventory Grid -->
-      <div class="glass-panel p-5 border border-slate-800">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+      <div class="medical-card p-5 border border-slate-200">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
           <div class="flex items-center gap-2">
-            <i class="fas fa-boxes text-teal-400"></i>
-            <h3 class="font-bold text-white text-base">Blood Bank Inventory Units (SQLite Table: `blood_units`)</h3>
+            <i class="fas fa-boxes text-teal-600"></i>
+            <h4 class="font-bold text-slate-900 text-sm">Blood Bank Inventory Units</h4>
           </div>
-          <span class="text-xs text-slate-400">Stored in SQLite</span>
+          <span class="text-xs text-slate-500">Stored in Blood Bank</span>
         </div>
         <div id="blood-inventory-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           <!-- Dynamically populated -->
@@ -428,69 +445,124 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- TAB 4: SQL DATABASE EXPLORER (FULLSTACK DB SHOWCASE) -->
+    <!-- TAB 4: C++ DSA ENGINE (HEAP & HASH TABLE) -->
     <!-- ======================================================== -->
-    <div id="tab-database" class="tab-content hidden space-y-6">
+    <div id="tab-ds" class="tab-content hidden space-y-6">
 
-      <!-- Database Info Banner -->
-      <div class="glass-panel p-5 border border-emerald-500/30 bg-gradient-to-r from-emerald-950/30 via-slate-900 to-slate-900">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-2xl">
-              <i class="fas fa-database"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="text-lg font-bold text-white">Relational SQLite Database & Schema Inspector</h3>
-                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">hopeline.db</span>
-              </div>
-              <p class="text-xs text-slate-400 mt-1">
-                Persistent database managing 5 relational tables: <code class="text-emerald-300">patients</code>, <code class="text-emerald-300">resources</code>, <code class="text-emerald-300">donors</code>, <code class="text-emerald-300">blood_units</code>, and <code class="text-emerald-300">triage_logs</code>.
-              </p>
-            </div>
+      <!-- Academic Banner -->
+      <div class="medical-card p-5 border-l-4 border-l-amber-500 bg-amber-50/20">
+        <h3 class="text-sm font-bold text-amber-900 flex items-center gap-2">
+          <i class="fas fa-graduation-cap text-amber-600"></i>
+          <span>Academic PBL Curriculum Integration: Data Structures & OOP with C++</span>
+        </h3>
+        <p class="text-xs text-slate-600 mt-1">
+          Demonstrates direct implementation of <strong>Data Structures in C</strong> (Priority Queue, Hash Table) and <strong>OOPS in C++</strong> (Polymorphism, Inheritance, Encapsulation) under mentor Mr. Sanjeev Kukreti.
+        </p>
+      </div>
+
+      <!-- Hash Table Visualizer -->
+      <div class="medical-card p-5 border border-slate-200">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-hashtag text-rose-500"></i>
+            <h4 class="font-bold text-slate-900 text-sm">Donor Hash Table with Bucket Chaining</h4>
+          </div>
+          <span class="text-xs font-mono text-slate-500">Average O(1) Lookup Complexity</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-4">
+          Donors are hashed into fixed buckets indexed by blood group. Each bucket contains a linked list of donor nodes for instant retrieval during medical emergencies.
+        </p>
+        <div id="hash-table-buckets" class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <!-- Dynamically populated buckets -->
+        </div>
+      </div>
+
+      <!-- Priority Queue Math & Formulas -->
+      <div class="medical-card p-5 border border-slate-200">
+        <h4 class="font-bold text-slate-900 text-sm mb-3 flex items-center gap-2">
+          <i class="fas fa-square-root-variable text-sky-600"></i>
+          <span>Mathematical Formulations in C++ Engine</span>
+        </h4>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <h5 class="font-bold text-sky-800 mb-1">1. Priority Score Formula</h5>
+            <p class="text-slate-800 font-mono text-[11px] mb-2 bg-white p-2 rounded border border-slate-200">
+              Score = (Severity × 5) + (Risk × 3) + (min(Wait / 5, 10) × 2)
+            </p>
+            <p class="text-slate-600">
+              Weights emergency severity highest, with dynamic wait time boosting to guarantee no patient starves in the queue.
+            </p>
           </div>
 
-          <div class="flex items-center gap-2">
-            <button onclick="loadTableData('patients')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">patients</button>
-            <button onclick="loadTableData('resources')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">resources</button>
-            <button onclick="loadTableData('donors')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">donors</button>
-            <button onclick="loadTableData('blood_units')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">blood_units</button>
-            <button onclick="loadTableData('triage_logs')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">triage_logs</button>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <h5 class="font-bold text-sky-800 mb-1">2. Binary Heap Invariant</h5>
+            <p class="text-slate-800 font-mono text-[11px] mb-2 bg-white p-2 rounded border border-slate-200">
+              Parent(i) = ⌊(i - 1) / 2⌋<br>
+              Left(i) = 2i + 1 | Right(i) = 2i + 2
+            </p>
+            <p class="text-slate-600">
+              Implemented using standard vector backing with custom <code class="text-sky-700">heapifyUp()</code> and <code class="text-sky-700">heapifyDown()</code> routines in C++.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <h5 class="font-bold text-sky-800 mb-1">3. Donor Compatibility Match</h5>
+            <p class="text-slate-800 font-mono text-[11px] mb-2 bg-white p-2 rounded border border-slate-200">
+              Score = Compat(50/40) + Avail(20) + (20 - Dist/5) + Urg/10
+            </p>
+            <p class="text-slate-600">
+              Multi-criteria optimization matching compatible blood types with geographic proximity and current availability.
+            </p>
           </div>
         </div>
       </div>
 
-      <!-- Live Interactive SQL Query Console -->
-      <div class="glass-panel p-5 border border-slate-800 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-          <div class="flex items-center gap-2">
-            <i class="fas fa-terminal text-emerald-400"></i>
-            <h4 class="font-bold text-white text-base">Interactive SQL Query Console</h4>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- TAB 5: HOSPITAL DATABASE (SQLITE) -->
+    <!-- ======================================================== -->
+    <div id="tab-database" class="tab-content hidden space-y-6">
+
+      <div class="medical-card p-5 border-l-4 border-l-teal-500 bg-teal-50/20">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-sm font-bold text-teal-900 flex items-center gap-2">
+              <i class="fas fa-database text-teal-600"></i>
+              <span>Relational SQLite Database & Table Inspector</span>
+            </h3>
+            <p class="text-xs text-slate-600 mt-1">
+              Backend storage managing 5 relational tables: <code class="text-teal-800">patients</code>, <code class="text-teal-800">resources</code>, <code class="text-teal-800">donors</code>, <code class="text-teal-800">blood_units</code>, and <code class="text-teal-800">triage_logs</code>.
+            </p>
           </div>
-          <span class="text-xs text-slate-400 font-mono">Execute Live Read-Only Queries</span>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button onclick="inspectTable('patients')" class="px-2.5 py-1 text-xs font-semibold rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200">patients</button>
+            <button onclick="inspectTable('resources')" class="px-2.5 py-1 text-xs font-semibold rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200">resources</button>
+            <button onclick="inspectTable('donors')" class="px-2.5 py-1 text-xs font-semibold rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200">donors</button>
+            <button onclick="inspectTable('blood_units')" class="px-2.5 py-1 text-xs font-semibold rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200">blood_units</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SQL Console -->
+      <div class="medical-card p-5 border border-slate-200 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <h4 class="font-bold text-slate-900 text-xs">Interactive SQL Query Console</h4>
+          <span class="text-[11px] font-mono text-slate-400">Read-Only SQL Evaluator</span>
         </div>
 
-        <!-- Query Presets -->
-        <div class="flex items-center gap-2 flex-wrap text-xs">
-          <span class="text-slate-400 font-medium">Quick Queries:</span>
-          <button onclick="setQuery('SELECT * FROM patients ORDER BY priority_score DESC;')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-mono text-[11px]">Top Patients</button>
-          <button onclick="setQuery('SELECT type, state, COUNT(*) as total FROM resources GROUP BY type, state;')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 font-mono text-[11px]">Bed Status Breakdown</button>
-          <button onclick="setQuery('SELECT * FROM donors WHERE available = 1 AND distance <= 10;')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 font-mono text-[11px]">Nearby Donors</button>
-          <button onclick="setQuery('SELECT * FROM triage_logs ORDER BY processed_at DESC;')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-mono text-[11px]">Audit Logs</button>
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-2">
-          <input type="text" id="sql-query-input" value="SELECT * FROM patients ORDER BY priority_score DESC;" class="flex-1 px-3 py-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-emerald-400 font-mono focus:outline-none focus:border-emerald-500">
-          <button onclick="executeCurrentQuery()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
-            <i class="fas fa-play"></i> Run SQL Query
+        <div class="flex gap-2">
+          <input type="text" id="sql-query-input" value="SELECT * FROM patients ORDER BY priority_score DESC;" class="flex-1 px-3 py-2 text-xs bg-slate-900 text-emerald-400 font-mono rounded-lg border border-slate-700 focus:outline-none">
+          <button onclick="runSqlQuery()" class="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs transition">
+            <i class="fas fa-play mr-1"></i> Run
           </button>
         </div>
 
-        <!-- Query Output Table -->
-        <div class="overflow-x-auto max-h-[360px] bg-slate-900/60 rounded-xl border border-slate-800 p-2">
-          <div id="query-meta-banner" class="text-xs text-slate-400 px-2 py-1 mb-2 font-mono">Results will appear here...</div>
+        <div class="overflow-x-auto max-h-[300px] bg-slate-50 rounded-xl border border-slate-200 p-2">
+          <div id="query-meta-banner" class="text-xs text-slate-500 mb-2 font-mono">Results will appear here...</div>
           <table id="query-results-table" class="w-full text-left text-xs font-mono">
-            <!-- Dynamically populated -->
+            <!-- Populated via JS -->
           </table>
         </div>
       </div>
@@ -498,194 +570,112 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- TAB 5: DATA STRUCTURES & OOP VISUALIZER -->
-    <!-- ======================================================== -->
-    <div id="tab-ds" class="tab-content hidden space-y-6">
-
-      <!-- DS Overview Banner -->
-      <div class="glass-panel p-5 border border-amber-500/30 bg-amber-950/10">
-        <h3 class="text-base font-bold text-amber-300 flex items-center gap-2">
-          <i class="fas fa-graduation-cap"></i>
-          <span>Academic PBL Curriculum Integration: Data Structures & OOP in C++</span>
-        </h3>
-        <p class="text-xs text-slate-300 mt-1">
-          Directly models two core subjects: <strong>Data Structures (C/C++)</strong> and <strong>Object-Oriented Programming (C++17)</strong> under mentor Mr. Sanjeev Kukreti.
-        </p>
-      </div>
-
-      <!-- Hash Table Visualizer -->
-      <div class="glass-panel p-5 border border-slate-800">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
-          <div class="flex items-center gap-2">
-            <i class="fas fa-hashtag text-rose-400"></i>
-            <h4 class="font-bold text-white text-base">Donor Hash Table with Collision Chaining</h4>
-          </div>
-          <span class="text-xs text-slate-400 font-mono">Average O(1) Lookup Complexity</span>
-        </div>
-        <p class="text-xs text-slate-400 mb-4">
-          Donors are hashed into fixed buckets indexed by blood group. Each bucket contains a linked list of donor objects for rapid retrieval during high-severity emergency calls.
-        </p>
-        <div id="hash-table-buckets" class="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-          <!-- Dynamically populated buckets -->
-        </div>
-      </div>
-
-      <!-- Priority Queue Math -->
-      <div class="glass-panel p-5 border border-slate-800">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
-          <div class="flex items-center gap-2">
-            <i class="fas fa-sort-amount-down text-sky-400"></i>
-            <h4 class="font-bold text-white text-base">Priority Queue (Max-Heap) Algorithm Specifications</h4>
-          </div>
-          <span class="text-xs text-slate-400 font-mono">O(log n) Insert & Extract-Max</span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
-            <h5 class="font-bold text-sky-300 mb-2">1. Priority Score Formula</h5>
-            <p class="text-slate-300 font-mono text-[11px] mb-2 bg-slate-950 p-2 rounded">
-              Score = (Severity × 5) + (Risk × 3) + (min(Wait / 5, 10) × 2)
-            </p>
-            <p class="text-slate-400">
-              Guarantees that severe emergency patients take precedence, while preventing starvation through the dynamic waiting-time booster factor.
-            </p>
-          </div>
-
-          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
-            <h5 class="font-bold text-sky-300 mb-2">2. Binary Heap Invariant</h5>
-            <p class="text-slate-300 font-mono text-[11px] mb-2 bg-slate-950 p-2 rounded">
-              Parent(i) = ⌊(i - 1) / 2⌋<br>
-              Left(i) = 2i + 1 | Right(i) = 2i + 2
-            </p>
-            <p class="text-slate-400">
-              Custom <code class="text-sky-300">heapifyUp()</code> and <code class="text-sky-300">heapifyDown()</code> routines implemented in C++ and Python.
-            </p>
-          </div>
-
-          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
-            <h5 class="font-bold text-sky-300 mb-2">3. Donor Match Formula</h5>
-            <p class="text-slate-300 font-mono text-[11px] mb-2 bg-slate-950 p-2 rounded">
-              Score = Compat(50/40) + Avail(20) + (20 - Dist/5) + Urgency/10
-            </p>
-            <p class="text-slate-400">
-              Multi-criteria heuristic optimization returning the single closest, eligible compatible donor in real-time.
-            </p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ======================================================== -->
-    <!-- TAB 6: ABOUT PBL PROJECT & TEAM CODEPULSE -->
+    <!-- TAB 6: TEAM CODEPULSE & PROPOSAL -->
     <!-- ======================================================== -->
     <div id="tab-about" class="tab-content hidden space-y-6">
 
       <!-- Project Synopsis Card -->
-      <div class="glass-panel p-6 border border-slate-800">
-        <div class="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <span class="text-xs font-bold text-sky-400 uppercase tracking-widest">Project-Based Learning (Phase-III)</span>
-            <h2 class="text-2xl font-black text-white mt-1">HopeLine: Smart Hospital Resource and Blood Donor Matching System</h2>
-            <p class="text-sm text-slate-300 mt-2 max-w-3xl">
-              During hospital mass-casualty emergencies, simultaneous manual tracking of beds, ICU capacity, oxygen supplies, and compatible blood donors causes critical delays. HopeLine combines real-time priority scoring, Max-Heap emergency queueing, and Hash Table donor matching into one cohesive decision-support system with a fullstack web dashboard and SQLite database.
-            </p>
-          </div>
-          <div class="text-right">
-            <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Academic Session 2026–27</span>
-            <p class="text-xs text-slate-400 mt-1 font-mono">Team ID: DSCPP-III-2026-T225</p>
-          </div>
+      <div class="medical-card p-6 border-l-4 border-l-indigo-500">
+        <span class="text-xs font-bold text-sky-600 uppercase tracking-widest">Project-Based Learning (Phase-III Deliverable)</span>
+        <h2 class="text-xl font-extrabold text-slate-900 mt-1">HopeLine: Smart Hospital Resource and Blood Donor Matching System</h2>
+        <p class="text-xs text-slate-600 mt-2 max-w-3xl leading-relaxed">
+          During mass-casualty medical emergencies, hospitals struggle to simultaneously find available ICU beds, oxygen supplies, and compatible blood donors. HopeLine combines real-time priority scoring, Max-Heap emergency triage, and Hash Table donor matching into a unified decision-support platform.
+        </p>
+        <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2 text-xs text-slate-500">
+          <span><strong>College:</strong> Graphic Era (Deemed to be University), Dehradun</span>
+          <span><strong>Domain:</strong> Healthcare Systems (Data Structures & OOPS C++)</span>
+          <span><strong>Team ID:</strong> DSCPP-III-2026-T225</span>
         </div>
       </div>
 
       <!-- Team Members Grid -->
       <div>
-        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-          <i class="fas fa-users-cog text-sky-400"></i>
-          <span>Team CodePulse Members & Responsibilities</span>
+        <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+          <i class="fas fa-users text-sky-600"></i>
+          <span>Team CodePulse Members & Contributions</span>
         </h3>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
           <!-- Member 1: Shivansh Khanna -->
-          <div class="glass-panel p-5 border border-slate-800 rounded-xl space-y-3">
+          <div class="medical-card p-5 border border-slate-200 rounded-xl space-y-3">
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-lg font-bold">
+              <div class="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-base">
                 SK
               </div>
               <div>
-                <h4 class="font-bold text-white text-base">Shivansh Khanna</h4>
-                <span class="text-xs text-indigo-300 font-semibold block">Team Lead</span>
-                <span class="text-[11px] text-slate-400 font-mono">ID: 2510012154</span>
+                <h4 class="font-bold text-slate-900 text-sm">Shivansh Khanna</h4>
+                <span class="text-xs text-indigo-600 font-semibold block">Team Lead</span>
+                <span class="text-[11px] text-slate-500 font-mono">ID: 2510012154</span>
               </div>
             </div>
-            <div class="text-xs text-slate-300 space-y-1 pt-2 border-t border-slate-800">
-              <strong class="text-slate-200 block">Core Modules:</strong>
+            <div class="text-xs text-slate-600 space-y-1 pt-2 border-t border-slate-100">
+              <strong class="text-slate-800 block">Core Modules:</strong>
               <p>• System Architecture & Lead Design</p>
               <p>• Patient Class & Priority Engine</p>
-              <p>• Priority Queue (Max-Heap) Implementation</p>
-              <p>• JSON Data Store Serialization</p>
+              <p>• Priority Queue (Max-Heap) Algorithm</p>
+              <p>• JSON Data Serialization</p>
             </div>
           </div>
 
           <!-- Member 2: Piyush Srivastava -->
-          <div class="glass-panel p-5 border border-slate-800 rounded-xl space-y-3">
+          <div class="medical-card p-5 border border-slate-200 rounded-xl space-y-3">
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-xl bg-rose-600/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-lg font-bold">
+              <div class="w-12 h-12 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-700 font-bold text-base">
                 PS
               </div>
               <div>
-                <h4 class="font-bold text-white text-base">Piyush Srivastava</h4>
-                <span class="text-xs text-rose-300 font-semibold block">Developer</span>
-                <span class="text-[11px] text-slate-400 font-mono">ID: 2510370317</span>
+                <h4 class="font-bold text-slate-900 text-sm">Piyush Srivastava</h4>
+                <span class="text-xs text-rose-600 font-semibold block">Developer</span>
+                <span class="text-[11px] text-slate-500 font-mono">ID: 2510370317</span>
               </div>
             </div>
-            <div class="text-xs text-slate-300 space-y-1 pt-2 border-t border-slate-800">
-              <strong class="text-slate-200 block">Core Modules:</strong>
+            <div class="text-xs text-slate-600 space-y-1 pt-2 border-t border-slate-100">
+              <strong class="text-slate-800 block">Core Modules:</strong>
               <p>• Donor & BloodUnit Class Design</p>
               <p>• Donor Hash Table with Bucket Chaining</p>
               <p>• Multi-Factor Donor Matching Algorithm</p>
-              <p>• Blood Compatibility Logic</p>
+              <p>• Blood Group Compatibility Rules</p>
             </div>
           </div>
 
           <!-- Member 3: Parikshit Thakur -->
-          <div class="glass-panel p-5 border border-sky-500/40 bg-sky-950/20 rounded-xl space-y-3">
+          <div class="medical-card p-5 border-2 border-sky-400 bg-sky-50/20 rounded-xl space-y-3">
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-xl bg-sky-600/30 border border-sky-400/50 flex items-center justify-center text-sky-300 text-lg font-bold">
+              <div class="w-12 h-12 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
                 PT
               </div>
               <div>
-                <h4 class="font-bold text-white text-base">Parikshit Thakur</h4>
-                <span class="text-xs text-sky-300 font-semibold block">Developer & Web/DB Lead</span>
-                <span class="text-[11px] text-slate-400 font-mono">ID: 2510380241</span>
+                <h4 class="font-bold text-slate-900 text-sm">Parikshit Thakur</h4>
+                <span class="text-xs text-sky-700 font-semibold block">Developer & Web/DB Lead</span>
+                <span class="text-[11px] text-slate-500 font-mono">ID: 2510380241</span>
               </div>
             </div>
-            <div class="text-xs text-slate-300 space-y-1 pt-2 border-t border-slate-800">
-              <strong class="text-slate-200 block">Core Modules:</strong>
-              <p>• Hospital & Resource Hierarchy (Bed/ICU/Oxygen)</p>
-              <p>• Fullstack Web Dashboard & SQLite Database</p>
-              <p>• REST API Integration & System Architecture</p>
-              <p>• System Testing & Documentation</p>
+            <div class="text-xs text-slate-600 space-y-1 pt-2 border-t border-slate-100">
+              <strong class="text-slate-800 block">Core Modules:</strong>
+              <p>• Hospital Resource Hierarchy (ICU/Bed/Oxygen)</p>
+              <p>• Web Portal & Vercel Deployment (<a href="https://parikshit07.tech" target="_blank" class="text-sky-600 font-semibold underline">parikshit07.tech</a>)</p>
+              <p>• SQLite Database & Render API Integration</p>
+              <p>• Edge-Case Testing & Documentation</p>
             </div>
           </div>
 
         </div>
       </div>
 
-      <!-- Mentor & Affiliation -->
-      <div class="glass-panel p-5 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+      <!-- Faculty Mentor -->
+      <div class="medical-card p-5 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center text-lg">
-            <i class="fas fa-chalkboard-teacher"></i>
+          <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-lg">
+            <i class="fas fa-chalkboard-user"></i>
           </div>
           <div>
-            <h4 class="text-sm font-bold text-white">Faculty Mentor: Mr. Sanjeev Kukreti</h4>
-            <p class="text-xs text-slate-400">Department of Computer Science & Engineering • Graphic Era (Deemed to be University), Dehradun</p>
+            <h4 class="text-sm font-bold text-slate-900">Faculty Mentor: Mr. Sanjeev Kukreti</h4>
+            <p class="text-xs text-slate-500">Department of Computer Science & Engineering • Graphic Era (Deemed to be University)</p>
           </div>
         </div>
-        <div class="text-xs text-slate-400">
-          Evaluated under: <strong class="text-slate-200">Data Structures (C)</strong> & <strong class="text-slate-200">OOPS with C++</strong>
+        <div class="text-xs text-slate-500">
+          Course: <strong class="text-slate-800">Data Structures in C</strong> & <strong class="text-slate-800">OOPS with C++</strong>
         </div>
       </div>
 
@@ -693,97 +683,56 @@
 
   </main>
 
-  <!-- ALL PATIENTS MODAL (OPTION 2) -->
-  <div id="patients-list-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="glass-panel p-6 max-w-4xl w-full border border-sky-500/40 shadow-2xl rounded-2xl space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <div class="flex items-center gap-2">
-          <i class="fas fa-users text-sky-400"></i>
-          <h4 class="font-bold text-white text-base">Registered Patients Records (C++ Option 2 - SQLite Table: patients)</h4>
-        </div>
-        <button onclick="closePatientsListModal()" class="text-slate-400 hover:text-white text-sm">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <div class="overflow-x-auto max-h-[400px]">
-        <table class="w-full text-left">
-          <thead>
-            <tr class="border-b border-slate-700 text-xs font-semibold text-slate-400 uppercase">
-              <th class="py-2 px-3">ID</th>
-              <th class="py-2 px-3">Name</th>
-              <th class="py-2 px-3">Age</th>
-              <th class="py-2 px-3">Blood</th>
-              <th class="py-2 px-3">Resource</th>
-              <th class="py-2 px-3">Severity</th>
-              <th class="py-2 px-3">Risk</th>
-              <th class="py-2 px-3">Wait</th>
-              <th class="py-2 px-3">Priority</th>
-            </tr>
-          </thead>
-          <tbody id="patients-modal-table-body">
-            <!-- Dynamically populated from SQLite -->
-          </tbody>
-        </table>
-      </div>
-
-      <div class="flex justify-end pt-2 border-t border-slate-800">
-        <button onclick="closePatientsListModal()" class="py-1.5 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition">
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- TRIAGE RESULT MODAL -->
-  <div id="triage-result-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="glass-panel p-6 max-w-md w-full border border-sky-500/40 shadow-2xl rounded-2xl space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+  <div id="triage-result-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="medical-card p-6 max-w-md w-full border border-sky-400 shadow-2xl rounded-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <div class="flex items-center gap-2">
-          <span class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+          <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs">
             <i class="fas fa-check"></i>
           </span>
-          <h4 class="font-bold text-white text-base">Triage Processed Successfully</h4>
+          <h4 class="font-bold text-slate-900 text-base">Triage Processed Successfully</h4>
         </div>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-white text-sm">
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 text-sm">
           <i class="fas fa-times"></i>
         </button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <span class="text-slate-400 block">Patient:</span>
-          <h5 id="modal-patient-name" class="text-base font-bold text-white">Rahul Sharma</h5>
+          <span class="text-slate-500 block">Patient Name:</span>
+          <h5 id="modal-patient-name" class="text-base font-bold text-slate-900">Rahul Sharma</h5>
         </div>
 
-        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
-          <span class="text-slate-400">Calculated Priority Score:</span>
-          <span id="modal-priority-score" class="text-lg font-black text-rose-400">75</span>
+        <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-semibold">Priority Triage Score:</span>
+          <span id="modal-priority-score" class="text-lg font-black text-rose-600 font-mono">75 pts</span>
         </div>
 
-        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-          <span class="text-slate-400 block font-semibold">Hospital Resource Result:</span>
-          <p id="modal-resource-result" class="text-sky-300 font-medium">Allocated ICU Bed #1</p>
+        <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
+          <span class="text-slate-600 block font-semibold">Hospital Bed Allocation:</span>
+          <p id="modal-resource-result" class="text-sky-700 font-medium font-semibold">Allocated ICU Bed #1</p>
         </div>
 
-        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-          <span class="text-slate-400 block font-semibold">Blood Transfusion / Donor Result:</span>
-          <p id="modal-donor-result" class="text-rose-300 font-medium">Matched with donor Ravi (O+, 5km)</p>
+        <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
+          <span class="text-slate-600 block font-semibold">Blood Transfusion Matching:</span>
+          <p id="modal-donor-result" class="text-rose-700 font-medium font-semibold">Matched with donor Ravi (O+, 5km)</p>
         </div>
       </div>
 
-      <button onclick="closeModal()" class="w-full py-2 px-4 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition">
-        Dismiss & Return to Queue
+      <button onclick="closeModal()" class="w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs transition">
+        Dismiss & Return to Emergency Queue
       </button>
     </div>
   </div>
 
   <!-- FOOTER -->
-  <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
-    <p>HopeLine Fullstack PBL System • FastAPI Backend • SQLite Database • Graphic Era University • Team CodePulse</p>
+  <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 space-y-1">
+    <p>HopeLine Smart Hospital System • PBL Phase-III • Team CodePulse (T225)</p>
+    <p>Hosted & Maintained by Parikshit Thakur • <a href="https://parikshit07.tech" target="_blank" class="text-sky-600 font-semibold underline">parikshit07.tech</a></p>
   </footer>
 
-  <!-- Frontend JS logic connecting to FastAPI REST API & SQLite -->
+  <!-- Frontend JavaScript Engine -->
   <script src="app.js"></script>
 </body>
 </html>
