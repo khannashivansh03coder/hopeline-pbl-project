@@ -11,4 +11,4 @@ echo "=========================================================="
 (sleep 1.2 && open "http://localhost:3000" 2>/dev/null || xdg-open "http://localhost:3000" 2>/dev/null) &
 
 # Run local static server
-python3 -m http.server 3000 -d "$SCRIPT_DIR/frontend"
+python3 -m http.server 3000 -d "$SCRIPT_DIR"

@@ -17,18 +17,18 @@
 HopeLine is an integrated emergency decision-support system modeling hospital beds, ICU capacity, oxygen supplies, and compatible blood donors.
 
 ```
-modules/parikshit/website/
-├── frontend/               # Clinical Web Portal (Deployable to Vercel for parikshit07.tech)
-│   ├── index.html          # Clinical Emergency UI & ESI Triage Portal
-│   ├── style.css           # Medical design system & ECG pulse animations
-│   ├── app.js              # Hospital Max-Heap triage & blood donor matching engine
-│   └── vercel.json         # Vercel production headers & routing
-├── backend/                # REST API (Deployable to Render)
-│   ├── main.py             # FastAPI REST endpoints & Swagger docs (/docs)
-│   ├── database.py         # SQLite relational database engine (hopeline.db)
-│   └── requirements.txt    # Python dependencies
-├── render.yaml             # Render Blueprint for automated deployment
-└── run.sh                  # Local preview launcher
+parikshit_devlopement/
+├── index.html          # Clinical Emergency UI & ESI Triage Portal
+├── style.css           # Medical design system & ECG pulse animations
+├── app.js              # Hospital Max-Heap triage & blood donor matching engine
+├── vercel.json         # Vercel production headers & routing
+├── render.yaml         # Render Blueprint for automated deployment
+├── run.sh              # Local preview launcher
+├── backend/            # REST API (Deployable to Render)
+│   ├── main.py         # FastAPI REST endpoints & Swagger docs (/docs)
+│   ├── database.py     # SQLite relational database engine
+│   └── requirements.txt# Python dependencies
+└── README.md
 ```
 
 ---
@@ -39,13 +39,13 @@ modules/parikshit/website/
 2. Select your repository: **`khannashivansh03coder/hopeline-pbl-project`**.
 3. Under **Branch**, select: **`parikshit-module`**.
 4. In **Project Settings**:
-   * **Root Directory:** Click Edit and set to `modules/parikshit/website/frontend` (or `modules/parikshit/website`).
+   * **Root Directory:** Click Edit and set to **`parikshit_devlopement`**.
    * **Framework Preset:** Other / Static.
 5. Click **Deploy**.
 6. **Connect your Domain:**
    * Go to **Project Settings $\rightarrow$ Domains**.
    * Add: **`parikshit07.tech`** (and `www.parikshit07.tech`).
-   * Set the DNS records at your domain registrar (A Record to `76.76.21.21` or CNAME `cname.vercel-dns.com`).
+   * Set your DNS record at your domain registrar (A Record to `76.76.21.21` or CNAME `cname.vercel-dns.com`).
    * Vercel will automatically provision SSL (`https://parikshit07.tech`)!
 
 ---
@@ -55,7 +55,7 @@ modules/parikshit/website/
 1. Go to [render.com](https://render.com) and click **"New +"** $\rightarrow$ **"Web Service"** (or **"Blueprint"**).
 2. Connect your repository: `khannashivansh03coder/hopeline-pbl-project` (branch: `parikshit-module`).
 3. Set configuration:
-   * **Root Directory:** `modules/parikshit/website/backend`
+   * **Root Directory:** `parikshit_devlopement/backend`
    * **Runtime:** Python 3
    * **Build Command:** `pip install -r requirements.txt`
    * **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
@@ -66,7 +66,7 @@ modules/parikshit/website/
 ## 💻 How to Run Locally
 
 ```bash
-cd modules/parikshit/website
+cd parikshit_devlopement
 ./run.sh
 ```
 Opens in your browser at `http://localhost:3000`.

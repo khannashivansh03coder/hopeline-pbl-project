@@ -4,7 +4,7 @@ services:
     name: hopeline-frontend
     env: static
     buildCommand: ""
-    staticPublishPath: modules/parikshit/website/frontend
+    staticPublishPath: parikshit_devlopement
     pullRequestPreviewsEnabled: false
 
   # 2. Backend FastAPI REST API
@@ -12,8 +12,8 @@ services:
     name: hopeline-backend
     env: python
     plan: free
-    buildCommand: pip install -r modules/parikshit/website/backend/requirements.txt
-    startCommand: python -m uvicorn modules.parikshit.website.backend.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r parikshit_devlopement/backend/requirements.txt
+    startCommand: python -m uvicorn parikshit_devlopement.backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
