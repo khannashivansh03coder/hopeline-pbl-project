@@ -1,0 +1,77 @@
+[
+    {
+        "id": 1,
+        "state": "AVAILABLE",
+        "type": "ICU Bed"
+    },
+    {
+        "id": 2,
+        "state": "AVAILABLE",
+        "type": "ICU Bed"
+    },
+    {
+        "id": 3,
+        "state": "AVAILABLE",
+        "type": "ICU Bed"
+    },
+    {
+        "id": 4,
+        "state": "AVAILABLE",
+        "type": "ICU Bed"
+    },
+    {
+        "id": 5,
+        "state": "AVAILABLE",
+        "type": "ICU Bed"
+    },
+    {
+        "id": 6,
+        "state": "AVAILABLE",
+        "type": "General Bed"
+    },
+    {
+        "id": 7,
+        "state": "AVAILABLE",
+        "type": "General Bed"
+    },
+    {
+        "id": 8,
+        "state": "AVAILABLE",
+        "type": "General Bed"
+    },
+    {
+        "id": 9,
+        "state": "AVAILABLE",
+        "type": "General Bed"
+    },
+    {
+        "id": 10,
+        "state": "AVAILABLE",
+        "type": "General Bed"
+    },
+    {
+        "id": 11,
+        "state": "AVAILABLE",
+        "type": "Oxygen Unit"
+    },
+    {
+        "id": 12,
+        "state": "AVAILABLE",
+        "type": "Oxygen Unit"
+    },
+    {
+        "id": 13,
+        "state": "AVAILABLE",
+        "type": "Oxygen Unit"
+    },
+    {
+        "id": 14,
+        "state": "AVAILABLE",
+        "type": "Oxygen Unit"
+    },
+    {
+        "id": 15,
+        "state": "AVAILABLE",
+        "type": "Oxygen Unit"
+    }
+]
