@@ -1,19 +1,9 @@
 /* ========================================================
-   HopeLine - Clinical Medical Design System
-   PBL Phase 3 | Team CodePulse | parikshit07.tech
+   HopeLine - Hospital Clinical Design System
+   PBL Phase-3 | Graphic Era University | parikshit07.tech
    ======================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
-
-:root {
-  --hospital-navy: #091e3a;
-  --hospital-blue: #0284c7;
-  --hospital-teal: #0d9488;
-  --emergency-red: #e11d48;
-  --status-available: #10b981;
-  --status-occupied: #f43f5e;
-  --status-reserved: #f59e0b;
-}
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -21,67 +11,37 @@ body {
   color: #1e293b;
 }
 
-/* Subtle Clinical Grid Background */
-.clinical-grid {
-  background-image: radial-gradient(rgba(2, 132, 199, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
+code, kbd, samp, pre {
+  font-family: 'JetBrains+Mono', monospace;
 }
 
-/* Medical Card Elevation */
-.medical-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
-  transition: all 0.2s ease;
+/* Tab active state */
+.tab-link.active {
+  background-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
-.medical-card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  border-color: #cbd5e1;
-}
-
-/* ECG Heartbeat Animation */
-@keyframes ecg-pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.08); opacity: 0.85; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.heartbeat-live {
-  animation: ecg-pulse 1.6s infinite ease-in-out;
-}
-
-/* Vital Signs Blinker */
-@keyframes blinker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-.vital-blinker {
-  animation: blinker 1.2s infinite ease-in-out;
-}
-
-/* Triage Priority Badges */
-.triage-critical {
+/* Priority Badges */
+.badge-critical {
   background-color: #ffe4e6;
   color: #be123c;
   border: 1px solid #fda4af;
 }
 
-.triage-high {
+.badge-emergent {
   background-color: #fef3c7;
   color: #b45309;
   border: 1px solid #fcd34d;
 }
 
-.triage-moderate {
+.badge-urgent {
   background-color: #e0f2fe;
   color: #0369a1;
   border: 1px solid #bae6fd;
 }
 
-.triage-stable {
+.badge-stable {
   background-color: #d1fae5;
   color: #047857;
   border: 1px solid #a7f3d0;
@@ -89,58 +49,33 @@ body {
 
 /* Hospital Ward Bed Card States */
 .bed-card {
-  position: relative;
   border-radius: 12px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .bed-card.available {
   border: 1.5px solid #a7f3d0;
-  background: #f0fdf4;
+  background-color: #f0fdf4;
 }
 
 .bed-card.occupied {
   border: 1.5px solid #fecdd3;
-  background: #fff1f2;
+  background-color: #fff1f2;
 }
 
-.bed-card.reserved {
-  border: 1.5px solid #fde68a;
-  background: #fffbeb;
+.bed-card.maintenance {
+  border: 1.5px solid #fed7aa;
+  background-color: #fff7ed;
 }
 
-/* Binary Heap Visualizer */
-.heap-node {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  transition: all 0.25s ease;
-}
-
-.heap-node:hover {
-  transform: scale(1.15);
-}
-
-/* Custom Scrollbar for Hospital Feeds */
-::-webkit-scrollbar {
+/* Terminal Styling */
+#cpp-terminal-content::-webkit-scrollbar {
   width: 6px;
-  height: 6px;
 }
-
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
+#cpp-terminal-content::-webkit-scrollbar-track {
+  background: #020617;
 }
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+#cpp-terminal-content::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
 }
