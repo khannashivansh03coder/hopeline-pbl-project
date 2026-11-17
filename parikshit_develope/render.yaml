@@ -1,19 +1,19 @@
 services:
-  # 1. Frontend Web Service / Static Site (Can also be deployed on Vercel)
+  # 1. Frontend Static Site (Clean, ultra-fast, zero-spin-up latency)
   - type: web
-    name: hopeline-frontend
+    name: hopeline-medical-system
     env: static
     buildCommand: ""
-    staticPublishPath: parikshit_devlopement
+    staticPublishPath: parikshit_develope
     pullRequestPreviewsEnabled: false
 
-  # 2. Backend FastAPI REST API
+  # 2. Optional Backend FastAPI REST API
   - type: web
-    name: hopeline-backend
+    name: hopeline-backend-api
     env: python
     plan: free
-    buildCommand: pip install -r parikshit_devlopement/backend/requirements.txt
-    startCommand: python -m uvicorn parikshit_devlopement.backend.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r parikshit_develope/backend/requirements.txt
+    startCommand: python -m uvicorn parikshit_develope.backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
