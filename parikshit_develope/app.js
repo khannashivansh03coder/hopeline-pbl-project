@@ -1,15 +1,15 @@
 /**
  * HopeLine - Smart Hospital Resource & Blood Donor Matching System
- * PBL Phase-3 Engine | Graphic Era University | parikshit07.tech
- * Team CodePulse: Shivansh Khanna, Piyush Srivastava, Parikshit Thakur
+ * Central Emergency Healthcare & Hospital Triage Operations
+ * Portal: parikshit07.tech
  */
 
 // -------------------------------------------------------------
-// 1. Initial State Data (Mirrors C++ JSON data files)
+// 1. Initial Hospital State Data
 // -------------------------------------------------------------
 const INITIAL_DATA = {
   resources: [
-    // 5 ICU Beds (Parikshit Module)
+    // 5 ICU Beds
     { id: 1, type: "ICU", label: "ICU Bed #1 (Ventilator)", state: "AVAILABLE", patient: null },
     { id: 2, type: "ICU", label: "ICU Bed #2 (Ventilator)", state: "AVAILABLE", patient: null },
     { id: 3, type: "ICU", label: "ICU Bed #3 (Ventilator)", state: "AVAILABLE", patient: null },
@@ -80,10 +80,10 @@ let appState = {
 };
 
 // -------------------------------------------------------------
-// 2. Core C++ Formulas (Priority Engine & Donor Matching)
+// 2. Clinical Formulas (Priority Engine & Donor Matching)
 // -------------------------------------------------------------
 
-// Exact Formula: (Severity * 5) + (Risk * 3) + (min(Wait / 5, 10) * 2)
+// Triage Score: (Severity * 5) + (Risk * 3) + (min(Wait / 5, 10) * 2)
 function computePriority(severity, risk, waitTime) {
   const s = parseInt(severity) || 1;
   const r = parseInt(risk) || 1;
@@ -105,7 +105,7 @@ function isCompatible(donorGroup, patientGroup) {
   return false;
 }
 
-// Multi-Criteria Donor Score Formula
+// Multi-Criteria Donor Matching Score
 function calculateDonorScore(donor, patientBloodGroup, urgencyScore) {
   if (!isCompatible(donor.bloodGroup, patientBloodGroup)) {
     return { score: 0, compatible: false };
@@ -125,7 +125,7 @@ function calculateDonorScore(donor, patientBloodGroup, urgencyScore) {
 }
 
 // -------------------------------------------------------------
-// 3. Tab Navigation & UI Updaters
+// 3. Tab Navigation & UI Controls
 // -------------------------------------------------------------
 function switchTab(tabKey) {
   document.querySelectorAll(".tab-pane").forEach(el => el.classList.add("hidden"));
@@ -157,7 +157,7 @@ function updateLiveScorePreview() {
 }
 
 // -------------------------------------------------------------
-// 4. Emergency Patient Admission & Heap Queue Management
+// 4. Emergency Patient Admission & Queue Management
 // -------------------------------------------------------------
 function handlePatientAdmission(event) {
   event.preventDefault();
@@ -185,7 +185,7 @@ function handlePatientAdmission(event) {
 
   // Reset form name
   document.getElementById("input-name").value = "";
-  alert(`Patient '${name}' admitted with Priority Score: ${computePriority(severity, risk, waitingTime)} pts! Enqueued in Max-Heap.`);
+  alert(`Patient '${name}' admitted with Emergency Triage Score: ${computePriority(severity, risk, waitingTime)} pts! Enqueued for bed allocation.`);
 }
 
 function injectPresetCase(type) {
@@ -231,15 +231,15 @@ function deletePatient(patientId) {
 }
 
 // -------------------------------------------------------------
-// 5. Option 4: Process Top Patient (Console Simulation)
+// 5. Automated Triage Dispatch Action
 // -------------------------------------------------------------
 function processTopPatient() {
   if (appState.patients.length === 0) {
-    alert("Emergency queue is empty! Admit a patient first.");
+    alert("Emergency queue is empty! No pending patients waiting.");
     return;
   }
 
-  // Max-Heap: sort by priority descending to find root
+  // Find top priority patient
   const sorted = [...appState.patients].map(p => ({
     ...p,
     score: computePriority(p.severity, p.risk, p.waitingTime)
@@ -247,10 +247,10 @@ function processTopPatient() {
 
   const topPatient = sorted[0];
 
-  // Find available resource
+  // Find available matching hospital resource
   const matchedResource = appState.resources.find(r => r.type === topPatient.requiredResource && r.state === "AVAILABLE");
 
-  // Find best donor
+  // Find best compatible blood donor
   let bestDonor = null;
   let highestDonorScore = -1;
   appState.donors.forEach(d => {
@@ -267,27 +267,27 @@ function processTopPatient() {
     matchedResource.patient = `${topPatient.name} (ID: #${topPatient.id})`;
   }
 
-  // Remove top patient from queue
+  // Remove patient from queue
   appState.patients = appState.patients.filter(p => p.id !== topPatient.id);
 
-  // Append C++ terminal logs
+  // Append dispatch logs
   const terminal = document.getElementById("cpp-terminal-content");
   const timestamp = new Date().toLocaleTimeString();
 
   const logEntry = `
 <div class="pt-3 border-t border-slate-800 text-slate-300">
-  <div class="text-amber-400 font-bold">[${timestamp}] >>> OPTION 4: PROCESS TOP PATIENT (MAX-HEAP ROOT DEQUEUED)</div>
+  <div class="text-amber-400 font-bold">[${timestamp}] >>> DISPATCH ACTION: HIGHEST PRIORITY PATIENT PROCESSED</div>
   <div class="text-slate-400 pl-3">
     --------------------------------------------------------<br>
     Patient ID         : #${topPatient.id}<br>
     Patient Name       : <span class="text-white font-bold">${topPatient.name}</span><br>
     Blood Group        : <span class="text-rose-400 font-bold">${topPatient.bloodGroup}</span><br>
-    Priority Score     : <span class="text-emerald-400 font-bold">${topPatient.score} pts</span><br>
-    Required Resource  : ${topPatient.requiredResource}<br>
+    Triage Score       : <span class="text-emerald-400 font-bold">${topPatient.score} pts</span><br>
+    Required Unit      : ${topPatient.requiredResource}<br>
     --------------------------------------------------------<br>
-    Resource Allocation: <span class="${matchedResource ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}">${matchedResource ? `${matchedResource.label} (ID: ${matchedResource.id}) [ALLOCATED]` : 'NO BEDS AVAILABLE (ADDED TO OVERFLOW)'}</span><br>
+    Resource Allocation: <span class="${matchedResource ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}">${matchedResource ? `${matchedResource.label} (ID: ${matchedResource.id}) [ALLOCATED]` : 'NO BEDS CURRENTLY AVAILABLE (WAITLISTED)'}</span><br>
     Blood Donor Match  : <span class="${bestDonor ? 'text-sky-400 font-bold' : 'text-amber-400'}">${bestDonor ? `${bestDonor.name} (${bestDonor.bloodGroup}, ${bestDonor.distance}km away) - Match Score: ${bestDonor.matchScore}` : 'NO COMPATIBLE DONOR FOUND'}</span><br>
-    Status             : <span class="text-emerald-400 font-bold">Successfully Processed</span><br>
+    Dispatch Status    : <span class="text-emerald-400 font-bold">Successfully Dispatched & Admitted</span><br>
     --------------------------------------------------------
   </div>
 </div>`;
@@ -295,13 +295,13 @@ function processTopPatient() {
   terminal.innerHTML += logEntry;
   terminal.scrollTop = terminal.scrollHeight;
 
-  // Switch to console tab to show output
+  // Switch to console tab
   switchTab("console");
   renderAll();
 }
 
 // -------------------------------------------------------------
-// 6. Bed Card State Toggles (Parikshit Module)
+// 6. Ward Bed Management
 // -------------------------------------------------------------
 function toggleBedState(resourceId) {
   const res = appState.resources.find(r => r.id === resourceId);
@@ -309,7 +309,7 @@ function toggleBedState(resourceId) {
 
   if (res.state === "AVAILABLE") {
     res.state = "OCCUPIED";
-    res.patient = "Manual Emergency Admission";
+    res.patient = "Emergency Admitted Patient";
   } else if (res.state === "OCCUPIED") {
     res.state = "MAINTENANCE";
     res.patient = null;
@@ -330,7 +330,7 @@ function dischargeBed(resourceId) {
 }
 
 // -------------------------------------------------------------
-// 7. Donor Matching Tab (Piyush Module)
+// 7. Blood Donor Matching Engine
 // -------------------------------------------------------------
 function performDonorMatch() {
   const targetBlood = document.getElementById("matcher-patient-blood").value;
@@ -351,7 +351,7 @@ function performDonorMatch() {
           <div>
             <span class="font-bold">${r.name}</span> (${r.bloodGroup}) - ${r.distance}km
           </div>
-          <span class="text-[10px] font-bold text-rose-500">Incompatible Blood</span>
+          <span class="text-[10px] font-bold text-rose-500">Incompatible Blood Group</span>
         </div>`;
     }
 
@@ -364,7 +364,7 @@ function performDonorMatch() {
             <span class="text-[11px] text-slate-500">${r.distance} km away</span>
           </div>
           <div class="text-[10px] text-slate-500 mt-0.5">
-            Breakdown: Compat: ${r.comp} | Avail: ${r.avail} | Dist: ${r.dist} | Urg: ${r.urg}
+            Breakdown: Compatibility: ${r.comp} | Availability: ${r.avail} | Proximity: ${r.dist} | Urgency: ${r.urg}
           </div>
         </div>
         <div class="text-right">
@@ -398,7 +398,7 @@ function renderAll() {
   document.getElementById("stat-gen-count").innerText = `${availGen} / 5`;
   document.getElementById("stat-o2-count").innerText = `${availO2} / 5`;
 
-  // Render Max-Heap Queue List
+  // Render Queue List
   const queueContainer = document.getElementById("patient-heap-container");
   if (appState.patients.length === 0) {
     queueContainer.innerHTML = `
@@ -408,7 +408,6 @@ function renderAll() {
         <p class="text-xs text-slate-400">All emergency patients have been triaged and allocated beds.</p>
       </div>`;
   } else {
-    // Sort Max-Heap order
     const ranked = [...appState.patients].map(p => ({
       ...p,
       score: computePriority(p.severity, p.risk, p.waitingTime)
@@ -416,16 +415,12 @@ function renderAll() {
 
     queueContainer.innerHTML = ranked.map((p, idx) => {
       let badgeClass = "badge-stable";
-      let urgencyText = "ESI 4 - Stable";
       if (p.score >= 70) {
         badgeClass = "badge-critical";
-        urgencyText = "ESI 1 - Resuscitation";
       } else if (p.score >= 50) {
         badgeClass = "badge-emergent";
-        urgencyText = "ESI 2 - Emergent";
       } else if (p.score >= 35) {
         badgeClass = "badge-urgent";
-        urgencyText = "ESI 3 - Urgent";
       }
 
       return `
@@ -463,18 +458,18 @@ function renderAll() {
         </div>`;
     }).join("");
 
-    // Render Heap Array Visualizer
+    // Render Array Visualizer
     const arrayContainer = document.getElementById("heap-array-visualizer");
     arrayContainer.innerHTML = ranked.map((p, i) => `
       <div class="p-2 rounded bg-slate-100 border border-slate-200 text-center min-w-[70px]">
-        <span class="text-[9px] text-slate-400 block font-mono">[${i}]</span>
+        <span class="text-[9px] text-slate-400 block font-mono">Rank #${i + 1}</span>
         <span class="text-xs font-black text-sky-700 font-mono">${p.score}</span>
         <span class="text-[9px] text-slate-500 block truncate max-w-[65px]">${p.name.split(" ")[0]}</span>
       </div>
     `).join("");
   }
 
-  // Render Hospital Beds Grid (Parikshit Module)
+  // Render Ward Beds Grid
   const bedsGrid = document.getElementById("hospital-beds-grid");
   bedsGrid.innerHTML = appState.resources.map(r => {
     let cardClass = "available";
@@ -499,7 +494,7 @@ function renderAll() {
         </div>
         <div>
           <h5 class="font-bold text-slate-900 text-xs">${r.label}</h5>
-          <span class="text-[10px] text-slate-500 font-mono">Type: ${r.type} • ID: ${r.id}</span>
+          <span class="text-[10px] text-slate-500 font-mono">Unit Type: ${r.type} • ID: ${r.id}</span>
         </div>
         <div class="text-[11px] text-slate-600 min-h-[30px]">
           ${r.patient ? `Occupied by: <strong class="text-rose-700 block truncate">${r.patient}</strong>` : `<span class="text-emerald-700 font-medium">Ready for admission</span>`}

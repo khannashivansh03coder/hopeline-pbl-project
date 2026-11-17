@@ -1,6 +1,6 @@
 """
 HopeLine Hospital REST API (FastAPI)
-Backend service ready for Render deployment.
+Central Hospital Emergency Care & Blood Donor Matching System
 """
 
 from fastapi import FastAPI, HTTPException
@@ -10,8 +10,8 @@ from typing import Optional, List
 from . import database as db
 
 app = FastAPI(
-    title="HopeLine - Clinical Emergency System API",
-    description="Emergency Triage & Hospital Resource Matching REST API (PBL Phase 3 - Team CodePulse)",
+    title="HopeLine - Hospital Emergency Care API",
+    description="Emergency Triage & Hospital Resource Matching REST API",
     version="3.0.0"
 )
 
@@ -41,7 +41,6 @@ def root():
     return {
         "hospital": "HopeLine Emergency System",
         "status": "Online",
-        "team": "CodePulse (T225)",
         "domain": "parikshit07.tech",
         "docs": "/docs"
     }
