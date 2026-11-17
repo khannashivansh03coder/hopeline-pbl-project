@@ -1,7 +1,7 @@
 /**
  * HopeLine - Smart Hospital Resource & Blood Donor Matching System
  * Central Emergency Healthcare & Hospital Triage Operations
- * Portal: parikshit07.tech
+ * Developed by Team CodePulse
  */
 
 // -------------------------------------------------------------
