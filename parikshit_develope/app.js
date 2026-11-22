@@ -31,12 +31,29 @@ const INITIAL_DATA = {
     { id: 15, type: "Oxygen", label: "Oxygen Cylinder Unit #5", state: "AVAILABLE", patient: null }
   ],
   donors: [
-    { id: "D101", name: "Ravi Kumar", bloodGroup: "O+", distance: 5.0, phone: "+91 98765 11001", lastDonation: "2026-06-01", available: true },
-    { id: "D102", name: "Amit Joshi", bloodGroup: "O-", distance: 25.0, phone: "+91 98765 11002", lastDonation: "2026-06-15", available: true },
-    { id: "D103", name: "Kunal Mehra", bloodGroup: "A+", distance: 8.0, phone: "+91 98765 11003", lastDonation: "2026-07-01", available: true },
-    { id: "D104", name: "Arjun Rawat", bloodGroup: "B+", distance: 3.0, phone: "+91 98765 11004", lastDonation: "2026-05-01", available: true },
-    { id: "D105", name: "Neeraj Negi", bloodGroup: "O-", distance: 2.0, phone: "+91 98765 11005", lastDonation: "2026-04-01", available: true },
-    { id: "D106", name: "Priya Verma", bloodGroup: "AB+", distance: 4.0, phone: "+91 98765 11006", lastDonation: "2026-08-10", available: true }
+    // O Groups
+    { id: "D101", name: "Neeraj Negi", bloodGroup: "O-", distance: 2.0, phone: "+91 98765 11001", lastDonation: "2026-04-01", available: true },
+    { id: "D102", name: "Ravi Kumar", bloodGroup: "O+", distance: 2.5, phone: "+91 98765 11002", lastDonation: "2026-06-01", available: true },
+    { id: "D103", name: "Amit Joshi", bloodGroup: "O-", distance: 6.5, phone: "+91 98765 11003", lastDonation: "2026-06-15", available: true },
+    { id: "D104", name: "Vikas Thapliyal", bloodGroup: "O+", distance: 5.0, phone: "+91 98765 11004", lastDonation: "2026-07-20", available: true },
+
+    // A Groups
+    { id: "D105", name: "Siddharth Rawat", bloodGroup: "A-", distance: 2.8, phone: "+91 98765 11005", lastDonation: "2026-05-12", available: true },
+    { id: "D106", name: "Kunal Mehra", bloodGroup: "A+", distance: 3.5, phone: "+91 98765 11006", lastDonation: "2026-07-01", available: true },
+    { id: "D107", name: "Sneha Semwal", bloodGroup: "A-", distance: 6.2, phone: "+91 98765 11007", lastDonation: "2026-08-05", available: true },
+    { id: "D108", name: "Tarun Bhatt", bloodGroup: "A+", distance: 7.0, phone: "+91 98765 11008", lastDonation: "2026-06-18", available: true },
+
+    // B Groups
+    { id: "D109", name: "Arjun Rawat", bloodGroup: "B+", distance: 3.0, phone: "+91 98765 11009", lastDonation: "2026-05-01", available: true },
+    { id: "D110", name: "Manisha Chauhan", bloodGroup: "B-", distance: 3.2, phone: "+91 98765 11010", lastDonation: "2026-07-11", available: true },
+    { id: "D111", name: "Rohit Rana", bloodGroup: "B-", distance: 6.8, phone: "+91 98765 11011", lastDonation: "2026-08-02", available: true },
+    { id: "D112", name: "Gaurav Pant", bloodGroup: "B+", distance: 8.2, phone: "+91 98765 11012", lastDonation: "2026-06-25", available: true },
+
+    // AB Groups
+    { id: "D113", name: "Priya Verma", bloodGroup: "AB+", distance: 4.0, phone: "+91 98765 11013", lastDonation: "2026-08-10", available: true },
+    { id: "D114", name: "Deepa Joshi", bloodGroup: "AB-", distance: 3.8, phone: "+91 98765 11014", lastDonation: "2026-07-22", available: true },
+    { id: "D115", name: "Pooja Uniyal", bloodGroup: "AB+", distance: 6.5, phone: "+91 98765 11015", lastDonation: "2026-06-30", available: true },
+    { id: "D116", name: "Ankit Gusain", bloodGroup: "AB-", distance: 7.4, phone: "+91 98765 11016", lastDonation: "2026-05-19", available: true }
   ],
   patients: [
     {
@@ -346,57 +363,40 @@ function showToastNotification(message, type = "info") {
   }, 3500);
 }
 
-// Find compatible donors sorted strictly by:
-// 1. Availability (Available Now first)
-// 2. Exact Match first (e.g. A+ for an A+ patient)
-// 3. Nearest Distance in km (closest first)
+// Find donors matching EXACTLY the chosen blood group, sorted by nearest distance (km)
 function performDonorMatch(userClicked = false) {
   const bloodSelect = document.getElementById("matcher-patient-blood");
   if (!bloodSelect) return;
   const targetBlood = bloodSelect.value;
 
-  // Filter for strictly compatible donors
-  const compatibleDonors = appState.donors.filter(d => isCompatible(d.bloodGroup, targetBlood));
-
-  // Smart clinical sorting:
-  // Available first -> Exact Match first -> Nearest Distance first
-  compatibleDonors.sort((a, b) => {
-    // 1. Availability first
-    if (a.available !== b.available) return a.available ? -1 : 1;
-    // 2. Exact match first
-    const aExact = (a.bloodGroup === targetBlood);
-    const bExact = (b.bloodGroup === targetBlood);
-    if (aExact !== bExact) return aExact ? -1 : 1;
-    // 3. Nearest distance first
-    return a.distance - b.distance;
-  });
+  // STRICT FILTER: Match ONLY donors with the exact selected blood group
+  const exactDonors = appState.donors
+    .filter(d => d.bloodGroup === targetBlood)
+    .sort((a, b) => {
+      // 1. Available donors first
+      if (a.available !== b.available) return a.available ? -1 : 1;
+      // 2. Nearest distance first
+      return a.distance - b.distance;
+    });
 
   const spotlightContainer = document.getElementById("matcher-top-spotlight");
   const listContainer = document.getElementById("matcher-results-list");
 
   if (!spotlightContainer || !listContainer) return;
 
-  if (compatibleDonors.length === 0) {
+  if (exactDonors.length === 0) {
     spotlightContainer.innerHTML = `
-      <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-center">
-        <i class="fas fa-triangle-exclamation text-xl text-rose-500 mb-1 block"></i>
-        <h5 class="font-bold text-xs">No Compatible Donors Available for Group ${targetBlood}</h5>
-        <p class="text-[11px] text-rose-600 mt-0.5">Please register new volunteer blood donors below or notify regional blood banks.</p>
+      <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-center">
+        <i class="fas fa-triangle-exclamation text-xl text-amber-500 mb-1 block"></i>
+        <h5 class="font-bold text-xs">No Active Donors Registered with Blood Group ${targetBlood}</h5>
+        <p class="text-[11px] text-amber-700 mt-0.5">Please register a new ${targetBlood} volunteer donor using the enrollment form below.</p>
       </div>`;
-    listContainer.innerHTML = `<span class="text-xs text-slate-400">No other donors found.</span>`;
+    listContainer.innerHTML = `<span class="text-xs text-slate-400">No other ${targetBlood} donors currently registered.</span>`;
     return;
   }
 
-  // The #1 Top Nearest & Most Compatible Donor
-  const topDonor = compatibleDonors[0];
-  const isTopExact = (topDonor.bloodGroup === targetBlood);
-  const isTopUniversal = (topDonor.bloodGroup === "O-");
-
-  let topBadge = isTopExact
-    ? `<span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300"><i class="fas fa-check-double mr-1 text-emerald-600"></i>EXACT MATCH (${topDonor.bloodGroup})</span>`
-    : (isTopUniversal
-        ? `<span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-sky-100 text-sky-800 border border-sky-300"><i class="fas fa-star mr-1 text-sky-600"></i>UNIVERSAL DONOR (O-)</span>`
-        : `<span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300"><i class="fas fa-check mr-1 text-indigo-600"></i>COMPATIBLE (${topDonor.bloodGroup})</span>`);
+  // The #1 Top Nearest Donor of that exact blood group
+  const topDonor = exactDonors[0];
 
   spotlightContainer.innerHTML = `
     <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white border-2 border-emerald-500 shadow-md space-y-3 relative overflow-hidden transition-all duration-300">
@@ -405,7 +405,7 @@ function performDonorMatch(userClicked = false) {
           <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
             <i class="fas fa-crown text-[10px] text-amber-300"></i>
           </span>
-          <span class="text-xs font-black uppercase tracking-wider text-emerald-900">Top Recommended Nearest Donor</span>
+          <span class="text-xs font-black uppercase tracking-wider text-emerald-900">Nearest ${targetBlood} Blood Donor Found</span>
         </div>
         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${topDonor.available ? 'bg-emerald-600 text-white animate-pulse' : 'bg-slate-200 text-slate-700'}">
           ${topDonor.available ? '● Ready for Immediate Dispatch' : 'On-Call'}
@@ -417,7 +417,9 @@ function performDonorMatch(userClicked = false) {
           <div class="flex items-center gap-2 flex-wrap">
             <h4 class="text-base font-black text-slate-900">${topDonor.name}</h4>
             <span class="font-mono text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">${topDonor.id}</span>
-            ${topBadge}
+            <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+              <i class="fas fa-check-double mr-1 text-emerald-600"></i>EXACT MATCH (${topDonor.bloodGroup})
+            </span>
           </div>
           <div class="flex items-center gap-3 text-xs mt-1.5 flex-wrap font-semibold text-slate-600">
             <span class="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
@@ -439,51 +441,40 @@ function performDonorMatch(userClicked = false) {
       </div>
     </div>`;
 
-  // Other compatible donors (index 1 and beyond)
-  const otherDonors = compatibleDonors.slice(1);
+  // Other donors of this exact blood group
+  const otherDonors = exactDonors.slice(1);
   if (otherDonors.length === 0) {
     listContainer.innerHTML = `
       <div class="p-3 text-center text-slate-400 bg-slate-50 rounded-lg text-xs">
-        No other compatible donors found in the network.
+        No other registered ${targetBlood} donors in the network.
       </div>`;
   } else {
-    listContainer.innerHTML = otherDonors.map((d) => {
-      const isExact = (d.bloodGroup === targetBlood);
-      const isUniversal = (d.bloodGroup === "O-");
-
-      let badge = isExact
-        ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Exact (${d.bloodGroup})</span>`
-        : (isUniversal
-            ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">Universal (O-)</span>`
-            : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">Compatible (${d.bloodGroup})</span>`);
-
-      return `
-        <div class="p-2.5 rounded-lg bg-white border border-slate-200 hover:border-slate-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-          <div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-bold text-slate-900">${d.name}</span>
-              <span class="font-mono text-[10px] text-slate-400">${d.id}</span>
-              ${badge}
-              <span class="px-2 py-0.2 rounded-full text-[9px] font-bold ${d.available ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
-                ${d.available ? 'Available' : 'On-Call'}
-              </span>
-            </div>
-            <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-1 flex-wrap">
-              <span class="font-semibold text-slate-700"><i class="fas fa-location-dot mr-1 text-rose-500"></i>${d.distance} km</span>
-              <span><i class="fas fa-phone mr-1 text-slate-400"></i>${d.phone}</span>
-            </div>
+    listContainer.innerHTML = otherDonors.map((d) => `
+      <div class="p-2.5 rounded-lg bg-white border border-slate-200 hover:border-slate-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-bold text-slate-900">${d.name}</span>
+            <span class="font-mono text-[10px] text-slate-400">#${d.id}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">${d.bloodGroup}</span>
+            <span class="px-2 py-0.2 rounded-full text-[9px] font-bold ${d.available ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
+              ${d.available ? 'Available' : 'On-Call'}
+            </span>
           </div>
-          <button onclick="requestDonorDispatch('${d.id}')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-semibold border border-slate-200 text-[11px] transition flex items-center gap-1 self-end sm:self-center">
-            <i class="fas fa-paper-plane text-xs"></i>
-            <span>Request</span>
-          </button>
-        </div>`;
-    }).join("");
+          <div class="flex items-center gap-3 text-[11px] text-slate-500 mt-1 flex-wrap">
+            <span class="font-semibold text-slate-700"><i class="fas fa-location-dot mr-1 text-rose-500"></i>${d.distance} km</span>
+            <span><i class="fas fa-phone mr-1 text-slate-400"></i>${d.phone}</span>
+          </div>
+        </div>
+        <button onclick="requestDonorDispatch('${d.id}')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-semibold border border-slate-200 text-[11px] transition flex items-center gap-1 self-end sm:self-center">
+          <i class="fas fa-paper-plane text-xs"></i>
+          <span>Request</span>
+        </button>
+      </div>`).join("");
   }
 
   // Interactive Toast confirmation when explicitly clicked
   if (userClicked) {
-    showToastNotification(`Nearest Donor Found: ${topDonor.name} (${topDonor.bloodGroup}) at ${topDonor.distance} km away!`, "success");
+    showToastNotification(`Found Nearest ${targetBlood} Donor: ${topDonor.name} at ${topDonor.distance} km away!`, "success");
   }
 }
 
@@ -560,7 +551,7 @@ function toggleDonorAvailability(donorId) {
 // -------------------------------------------------------------
 function saveDonorsToStorage() {
   try {
-    localStorage.setItem("hopeline_registered_donors", JSON.stringify(appState.donors));
+    localStorage.setItem("hopeline_registered_donors_v4", JSON.stringify(appState.donors));
   } catch (e) {
     console.warn("localStorage write failed:", e);
   }
@@ -568,10 +559,11 @@ function saveDonorsToStorage() {
 
 function loadDonorsFromStorage() {
   try {
-    const saved = localStorage.getItem("hopeline_registered_donors");
+    const saved = localStorage.getItem("hopeline_registered_donors_v4");
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      // Ensure it contains at least our complete 8-blood-group pre-seeded directory
+      if (Array.isArray(parsed) && parsed.length >= 16) {
         return parsed;
       }
     }
@@ -762,7 +754,7 @@ function renderAll() {
 function resetToSampleData() {
   const storedDonors = loadDonorsFromStorage();
   appState = JSON.parse(JSON.stringify(INITIAL_DATA));
-  if (storedDonors) {
+  if (storedDonors && storedDonors.length >= 16) {
     appState.donors = storedDonors;
   }
   appState.nextPatientId = 104;
