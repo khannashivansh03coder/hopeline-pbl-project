@@ -127,26 +127,6 @@
     <!-- TAB 1: EMERGENCY ADMISSION & TRIAGE QUEUE                -->
     <!-- ======================================================== -->
     <div id="tab-triage" class="tab-pane space-y-6">
-      
-      <!-- Module Intro Ribbon -->
-      <div class="bg-white p-4 rounded-xl border border-slate-200 border-l-4 border-l-rose-500 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div>
-          <h3 class="text-sm font-bold text-slate-900">Emergency Patient Admission & Intelligent Priority Triage</h3>
-          <p class="text-xs text-slate-500 mt-0.5">Automates patient severity indexing to triage critical arrivals into priority order for immediate bed allocation.</p>
-        </div>
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-xs text-slate-500 font-medium">Simulate Emergency Cases:</span>
-          <button onclick="injectPresetCase('cardiac')" class="px-2.5 py-1 text-xs font-semibold rounded bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200">
-            Cardiac Arrest (Score: 82)
-          </button>
-          <button onclick="injectPresetCase('trauma')" class="px-2.5 py-1 text-xs font-semibold rounded bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200">
-            Highway Trauma (Score: 69)
-          </button>
-          <button onclick="injectPresetCase('asthma')" class="px-2.5 py-1 text-xs font-semibold rounded bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200">
-            Acute Asthma (Score: 48)
-          </button>
-        </div>
-      </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -218,21 +198,16 @@
               <input type="range" id="input-risk" min="1" max="10" value="7" oninput="updateLiveScorePreview()" class="w-full accent-amber-600">
             </div>
 
-            <!-- Waiting Time -->
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Queue Waiting Time (Minutes)</label>
-              <input type="number" id="input-wait" min="0" max="300" value="10" oninput="updateLiveScorePreview()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/20 font-medium text-slate-900">
-            </div>
-
             <!-- Dynamic Formula Output -->
             <div class="p-3 bg-sky-50 border border-sky-100 rounded-xl flex items-center justify-between">
               <div>
-                <span class="font-bold text-sky-900 block text-xs">Calculated Triage Score:</span>
-                <span class="text-[10px] text-sky-700 font-mono">(Severity × 5) + (Risk × 3) + (Wait Boost × 2)</span>
+                <span class="font-bold text-sky-900 block text-xs">Initial Intake Priority Score:</span>
+                <span class="text-[10px] text-sky-700 font-mono">(Severity × 5) + (Risk × 3)</span>
+                <span class="text-[10px] text-emerald-700 block mt-0.5 font-medium"><i class="fas fa-stopwatch mr-1"></i>Waiting time auto-tracks on admission (+2 pts / 5m in queue)</span>
               </div>
               <div class="text-right">
-                <span id="preview-score" class="text-2xl font-black text-sky-700 font-mono">65</span>
-                <span class="text-[9px] uppercase font-bold text-sky-600 block">Points</span>
+                <span id="preview-score" class="text-2xl font-black text-sky-700 font-mono">61</span>
+                <span class="text-[9px] uppercase font-bold text-sky-600 block">Base Pts</span>
               </div>
             </div>
 
@@ -336,54 +311,107 @@
         <div>
           <h3 class="text-base font-bold text-slate-900">Blood Bank & Donor Matching Network</h3>
           <p class="text-xs text-slate-500 mt-1">
-            Intelligent donor matching engine connecting emergency patients with verified donors based on blood compatibility, geographic proximity, and availability.
+            Intelligent donor matching engine connecting emergency patients with verified donors based on blood compatibility and nearest geographic proximity.
           </p>
         </div>
-        <div class="text-xs font-mono bg-slate-50 border border-slate-200 p-2 rounded text-slate-600">
-          Scoring: Compatibility + Availability + Distance + Urgency
+        <div class="text-xs font-mono bg-rose-50 border border-rose-200 p-2 rounded text-rose-700 font-semibold">
+          <i class="fas fa-shield-heart mr-1"></i>Compatibility Matrix • Distance Ranking (Nearest First)
         </div>
       </div>
 
       <!-- Interactive Matcher -->
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-        <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-          <i class="fas fa-search text-rose-600"></i>
-          <span>Blood Donor Matching Simulator</span>
-        </h4>
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <i class="fas fa-search text-rose-600"></i>
+            <span>Match Compatible Blood Donors</span>
+          </h4>
+          <span class="text-xs text-slate-500">Auto-ranked by nearest distance (km)</span>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 text-xs">
           <div class="md:col-span-4 space-y-3">
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Patient Blood Group</label>
-              <select id="matcher-patient-blood" onchange="performDonorMatch()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900">
-                <option value="O+">O+</option>
+              <label class="block font-semibold text-slate-700 mb-1">Select Patient Blood Group</label>
+              <select id="matcher-patient-blood" onchange="performDonorMatch()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/20">
+                <option value="O+">O+ (Common)</option>
                 <option value="O-">O- (Universal Donor)</option>
                 <option value="A+">A+</option>
                 <option value="A-">A-</option>
                 <option value="B+">B+</option>
                 <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
+                <option value="AB+">AB+ (Universal Recipient)</option>
                 <option value="AB-">AB- (Rare)</option>
               </select>
             </div>
 
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Emergency Urgency (0 to 100)</label>
-              <input type="number" id="matcher-urgency" min="0" max="100" value="75" oninput="performDonorMatch()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-slate-900">
-            </div>
-
-            <button onclick="performDonorMatch()" class="w-full py-2 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold transition flex items-center justify-center gap-1.5">
-              <i class="fas fa-crosshairs"></i> Find Optimal Blood Donor
+            <button onclick="performDonorMatch()" class="w-full py-2.5 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold transition flex items-center justify-center gap-2 shadow-sm shadow-rose-600/20">
+              <i class="fas fa-magnifying-glass-location"></i>
+              <span>Match Nearest Donors</span>
             </button>
+            <p class="text-[11px] text-slate-400 text-center">
+              <i class="fas fa-info-circle mr-1 text-slate-400"></i>Matches compatible blood types automatically
+            </p>
           </div>
 
           <div class="md:col-span-8 space-y-2">
-            <span class="font-bold text-slate-700 block">Compatible Donors Ranked by Match Score:</span>
-            <div id="matcher-results-list" class="space-y-2 max-h-[220px] overflow-y-auto">
+            <span class="font-bold text-slate-700 block">Compatible Donors (Sorted by Nearest Distance):</span>
+            <div id="matcher-results-list" class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
               <!-- Populated via JS -->
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Register New Volunteer Blood Donor Form -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <i class="fas fa-user-plus text-rose-600"></i>
+            <span>Register New Volunteer Blood Donor</span>
+          </h4>
+          <span class="text-xs text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded font-semibold border border-rose-200">
+            <i class="fas fa-heart mr-1"></i>New Donor Enrollment
+          </span>
+        </div>
+
+        <form id="donor-register-form" onsubmit="handleDonorRegistration(event)" class="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs pt-1">
+          <div class="md:col-span-3">
+            <label class="block font-semibold text-slate-700 mb-1">Donor Full Name</label>
+            <input type="text" id="new-donor-name" required placeholder="e.g. Rahul Bisht" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20">
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block font-semibold text-slate-700 mb-1">Blood Group</label>
+            <select id="new-donor-blood" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20">
+              <option value="O+">O+</option>
+              <option value="O-">O- (Universal)</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block font-semibold text-slate-700 mb-1">Distance (km)</label>
+            <input type="number" id="new-donor-distance" step="0.1" min="0.5" max="100" value="4.5" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20">
+          </div>
+
+          <div class="md:col-span-3">
+            <label class="block font-semibold text-slate-700 mb-1">Phone / Mobile No.</label>
+            <input type="tel" id="new-donor-phone" required placeholder="+91 98765 43210" value="+91 98765 43210" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20">
+          </div>
+
+          <div class="md:col-span-2 flex items-end">
+            <button type="submit" class="w-full py-2 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold transition flex items-center justify-center gap-1.5 shadow-sm shadow-rose-600/20">
+              <i class="fas fa-plus-circle"></i>
+              <span>Add Donor</span>
+            </button>
+          </div>
+        </form>
       </div>
 
       <!-- Donors Directory -->
@@ -404,6 +432,7 @@
                 <th class="py-2 px-3">Full Name</th>
                 <th class="py-2 px-3">Blood Group</th>
                 <th class="py-2 px-3">Distance</th>
+                <th class="py-2 px-3">Contact</th>
                 <th class="py-2 px-3">Last Donation</th>
                 <th class="py-2 px-3">Status</th>
                 <th class="py-2 px-3 text-right">Action</th>
@@ -413,6 +442,8 @@
               <!-- Populated via JS -->
             </tbody>
           </table>
+        </div>
+      </div>
         </div>
       </div>
 
