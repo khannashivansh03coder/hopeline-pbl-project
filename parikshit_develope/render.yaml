@@ -1,0 +1,19 @@
+services:
+  # 1. Frontend Static Site (Clean, ultra-fast, zero-spin-up latency)
+  - type: web
+    name: hopeline-medical-system
+    env: static
+    buildCommand: ""
+    staticPublishPath: parikshit_develope
+    pullRequestPreviewsEnabled: false
+
+  # 2. Optional Backend FastAPI REST API
+  - type: web
+    name: hopeline-backend-api
+    env: python
+    plan: free
+    buildCommand: pip install -r parikshit_develope/backend/requirements.txt
+    startCommand: python -m uvicorn parikshit_develope.backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
