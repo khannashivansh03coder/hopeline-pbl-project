@@ -2,7 +2,7 @@
 
 **HopeLine** is a modern emergency triage, hospital bed allocation, and blood donor matching platform.
 
-Live portal: [https://parikshit07.tech](https://parikshit07.tech)
+Live portal: [https://hopeline.parikshit07.tech](https://hopeline.parikshit07.tech)
 
 ---
 
@@ -27,7 +27,7 @@ Live portal: [https://parikshit07.tech](https://parikshit07.tech)
 
 ## Deployment
 
-- **Static Site:** Hosted on Render with custom domain `parikshit07.tech`.
+- **Static Site:** Hosted on Render with custom domain `hopeline.parikshit07.tech`.
 - **Backend API (Optional):** FastAPI service with SQLite database support (`backend/main.py`).
 
 ### Local Development

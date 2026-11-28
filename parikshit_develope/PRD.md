@@ -4,7 +4,7 @@
 **Document Version:** 3.0.0  
 **Status:** Implemented & Production Ready  
 **Domain:** Healthcare Systems / Emergency Medical Dispatch  
-**Production Portal:** [https://parikshit07.tech](https://parikshit07.tech)  
+**Production Portal:** [https://hopeline.parikshit07.tech](https://hopeline.parikshit07.tech)  
 
 ---
 
@@ -29,7 +29,7 @@ The HopeLine platform employs a modular, event-driven architecture separating cl
 
 ```
 +-------------------------------------------------------------------------+
-|                  Presentation Layer (parikshit07.tech)                  |
+|                  Presentation Layer (hopeline.parikshit07.tech)          |
 |     +-------------------+ +-------------------+ +-------------------+   |
 |     | Emergency Triage  | |  Ward Bed Manager | | Blood Bank Matcher|   |
 |     +-------------------+ +-------------------+ +-------------------+   |
@@ -53,7 +53,7 @@ The HopeLine platform employs a modular, event-driven architecture separating cl
                                      |
 +------------------------------------v------------------------------------+
 |                     Render Cloud Deployment & DNS                       |
-|           Render Edge  --->  Custom Domain (parikshit07.tech)           |
+|           Render Edge  --->  Custom Domain (hopeline.parikshit07.tech)   |
 +-------------------------------------------------------------------------+
 ```
 
@@ -146,7 +146,7 @@ The dispatch engine executes four synchronous operations upon dispatch trigger:
 | **Backend API** | REST Microservice | Python 3.11, FastAPI, Uvicorn |
 | **Persistence** | Database | SQLite 3 (`hopeline.db`) & LocalStorage |
 | **Hosting** | Cloud Edge | Render Cloud Platform |
-| **DNS & SSL** | Custom Domain | `parikshit07.tech` with automated TLS/SSL |
+| **DNS & SSL** | Custom Domain | `hopeline.parikshit07.tech` with automated TLS/SSL |
 
 ---
 

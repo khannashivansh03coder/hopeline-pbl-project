@@ -41,7 +41,7 @@ def root():
     return {
         "hospital": "HopeLine Emergency System",
         "status": "Online",
-        "domain": "parikshit07.tech",
+        "domain": "hopeline.parikshit07.tech",
         "docs": "/docs"
     }
 
